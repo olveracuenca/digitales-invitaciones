@@ -9,6 +9,16 @@ from routers.auth import get_password_hash
 # Crear las tablas de la base de datos
 models.Base.metadata.create_all(bind=engine)
 
+# Parche automático: añadir columna 'role' si no existe (para instalaciones previas)
+try:
+    with engine.connect() as conn:
+        from sqlalchemy import text
+        conn.execute(text("ALTER TABLE employees ADD COLUMN role VARCHAR DEFAULT 'employee'"))
+        conn.commit()
+except Exception as e:
+    # La columna ya existe o la base de datos no lo soporta de esta forma, ignoramos
+    pass
+
 app = FastAPI(title="Lirio Invitaciones", description="MVC Backend para invitaciones digitales")
 
 # Montar los archivos estáticos (CSS, JS, imágenes)
@@ -32,9 +42,14 @@ def create_default_admin():
         if not user:
             new_user = models.Employee(
                 username="admin",
-                hashed_password=get_password_hash("admin123") # Cambiar en producción!
+                hashed_password=get_password_hash("admin123"), # Cambiar en producción!
+                role="admin"
             )
             db.add(new_user)
+            db.commit()
+        elif user.role != "admin":
+            # Si el admin ya existía pero no tiene el rol correcto (porque se añadió la columna después)
+            user.role = "admin"
             db.commit()
     finally:
         db.close()

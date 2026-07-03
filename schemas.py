@@ -10,6 +10,7 @@ class TokenData(BaseModel):
 
 class EmployeeBase(BaseModel):
     username: str
+    role: str = "employee"
 
 class EmployeeCreate(EmployeeBase):
     password: str

@@ -136,6 +136,15 @@
                 <p class="module-desc">Crea, edita y gestiona múltiples proyectos de invitaciones digitales para diferentes eventos.</p>
             </a>
 
+            <!-- Módulo: Empleados (Solo Admin) -->
+            {% if user.role == 'admin' %}
+            <a href="/admin/employees" class="module-card">
+                <div class="module-icon">👥</div>
+                <h3 class="module-title">Gestión de Empleados</h3>
+                <p class="module-desc">Crea y elimina usuarios. Asigna permisos para administrar las invitaciones.</p>
+            </a>
+            {% endif %}
+
             <!-- Módulo Placeholder: Próximamente -->
             <div class="module-card disabled">
                 <div class="module-icon">📊</div>

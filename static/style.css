@@ -3,14 +3,14 @@
    ========================================================================== */
 :root {
     /* Colores del Sistema / Editor */
-    --editor-bg: #1e1e24;
-    --editor-sidebar-bg: #121214;
-    --editor-accent: #d4af37; /* Dorado */
-    --editor-accent-hover: #b8972f;
-    --editor-text-main: #f0f0f5;
-    --editor-text-muted: #a0a0b0;
-    --editor-border: #2a2a30;
-    --editor-input-bg: #18181c;
+    --editor-bg: #ffffff;
+    --editor-sidebar-bg: #fcfcfc;
+    --editor-accent: #a26c68; /* Mauve/Brown */
+    --editor-accent-hover: #8e5c58;
+    --editor-text-main: #333333;
+    --editor-text-muted: #888888;
+    --editor-border: #eeeeee;
+    --editor-input-bg: #ffffff;
     
     /* Variables de Temas para Invitaciones (Se sobrescriben por tema) */
     --inv-font-title: 'Playfair Display', serif;
@@ -108,44 +108,41 @@ body {
     width: 6px;
 }
 .editor-sections::-webkit-scrollbar-track {
-    background: var(--editor-sidebar-bg);
+    background: transparent;
 }
 .editor-sections::-webkit-scrollbar-thumb {
-    background: #33333b;
+    background: #cccccc;
     border-radius: 4px;
 }
 .editor-sections::-webkit-scrollbar-thumb:hover {
-    background: #444450;
+    background: #aaaaaa;
 }
 
 .editor-section {
-    background-color: var(--editor-bg);
-    border-radius: 12px;
-    padding: 20px;
-    border: 1px solid var(--editor-border);
+    background-color: transparent;
+    padding: 0 0 24px 0;
+    border: none;
+    border-bottom: 1px solid var(--editor-border);
+}
+
+.editor-section:last-child {
+    border-bottom: none;
 }
 
 .section-title {
-    font-size: 15px;
+    font-size: 13px;
     font-weight: 600;
     margin-bottom: 16px;
     display: flex;
     align-items: center;
     gap: 10px;
-    color: var(--editor-text-main);
+    color: var(--editor-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .step-num {
-    background-color: var(--editor-accent);
-    color: #121214;
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 11px;
-    font-weight: 700;
+    display: none;
 }
 
 /* Selector de Plantillas */
@@ -206,8 +203,7 @@ body {
 
 /* Grid de selectores de color */
 .color-picker-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    display: flex;
     gap: 12px;
     margin-bottom: 12px;
 }
@@ -216,14 +212,11 @@ body {
     display: flex;
     flex-direction: column;
     gap: 6px;
+    align-items: center;
 }
 
 .color-picker-item label {
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--editor-text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
+    display: none; /* Hide labels for a cleaner look matching the design */
 }
 
 .color-picker-item input[type="color"] {
@@ -231,9 +224,9 @@ body {
     -moz-appearance: none;
     appearance: none;
     border: none;
-    width: 100%;
-    height: 38px;
-    border-radius: 8px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
     cursor: pointer;
     background: none;
     padding: 0;
@@ -244,13 +237,51 @@ body {
 }
 
 .color-picker-item input[type="color"]::-webkit-color-swatch {
-    border: 1px solid var(--editor-border);
-    border-radius: 8px;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 1px #ddd, 0 2px 4px rgba(0,0,0,0.05);
+    border-radius: 50%;
 }
 
 .color-picker-item input[type="color"]::-moz-color-swatch {
-    border: 1px solid var(--editor-border);
-    border-radius: 8px;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 1px #ddd, 0 2px 4px rgba(0,0,0,0.05);
+    border-radius: 50%;
+}
+
+/* Temas Predefinidos */
+.theme-selector {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.theme-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    padding: 0;
+}
+
+.theme-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.theme-btn.active {
+    border-color: var(--editor-text-main);
+    transform: scale(1.1);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+}
+
+/* Selector circular con etiqueta */
+.color-picker-item.circular-picker label {
+    display: block;
+    font-size: 10px;
+    text-transform: uppercase;
 }
 
 /* SECCIÓN 3: SUBIDA DE IMÁGENES Y PRESETS */

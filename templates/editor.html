@@ -21,27 +21,34 @@
 
         <!-- PANEL DE CONTROL / EDITOR (IZQUIERDA) -->
         <aside class="editor-panel" id="editorPanel">
-            <header class="editor-header">
-                <div class="logo-area">
-                    <span class="logo-icon">🌸</span>
-                    <h1>Cuencaolv Invitaciones</h1>
+            <header class="editor-header" style="background: white; border-bottom: 1px solid #eee; padding: 20px 24px;">
+                <div class="logo-area" style="margin-bottom: 0;">
+                    <span class="logo-icon" style="font-size: 24px;">👶</span>
+                    <h1 style="font-family: 'Playfair Display', serif; color: #2c2523; font-size: 24px;">Creador de Invitación</h1>
                 </div>
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <a href="/admin/projects" class="action-btn" style="background-color: transparent; border: 1px solid #333; color: #333; padding: 5px 15px; border-radius: 5px; text-decoration: none; font-size: 0.9rem; margin-right: 10px;">← Proyectos</a>
-                    <a href="/logout" class="action-btn"
-                        style="background-color: #333; color: white; padding: 5px 15px; border-radius: 5px; text-decoration: none; font-size: 0.9rem;">🚪
-                        Cerrar Sesión</a>
+                <p style="color: #888; font-size: 13px; margin-top: 5px; font-weight: 400;">Personaliza los detalles en tiempo real</p>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
+                    <a href="/admin/projects" class="action-btn" style="background-color: transparent; border: 1px solid #ddd; color: #555; padding: 5px 15px; border-radius: 5px; text-decoration: none; font-size: 0.9rem; margin-right: 10px;">← Proyectos</a>
                 </div>
             </header>
 
             <div class="editor-sections">
 
-                <!-- SECCIÓN 1: PLANTILLA -->
+                <!-- SECCIÓN 1: PLANTILLA Y PORTADA -->
                 <section class="editor-section">
                     <h2 class="section-title">
-                        <span class="step-num">1</span> Selecciona una Plantilla
+                        <span class="step-num">1</span> Plantilla y Portada
                     </h2>
-                    <div class="template-selector">
+                    
+                    <div class="form-group-checkbox">
+                        <label class="checkbox-option">
+                            <input type="checkbox" id="input-show-cover" checked>
+                            <span class="checkbox-custom"></span>
+                            Mostrar Portada (Hero)
+                        </label>
+                    </div>
+
+                    <div class="template-selector" style="margin-bottom: 15px;">
                         <button class="template-btn active" data-template="quinceanera" id="btn-tmpl-quinceanera">
                             <span class="btn-icon">👑</span>
                             <div class="btn-info">
@@ -64,43 +71,10 @@
                             </div>
                         </button>
                     </div>
-                </section>
-
-                <!-- SECCIÓN 2: PERSONALIZACIÓN DE COLORES -->
-                <section class="editor-section">
-                    <h2 class="section-title">
-                        <span class="step-num">2</span> Paleta de Colores
-                    </h2>
-                    <div class="color-picker-grid">
-                        <div class="color-picker-item">
-                            <label for="input-color-primary">Primario</label>
-                            <input type="color" id="input-color-primary" value="#d4af37">
-                        </div>
-                        <div class="color-picker-item">
-                            <label for="input-color-text">Texto</label>
-                            <input type="color" id="input-color-text" value="#403234">
-                        </div>
-                        <div class="color-picker-item">
-                            <label for="input-color-bg1">Fondo 1</label>
-                            <input type="color" id="input-color-bg1" value="#fff0f3">
-                        </div>
-                        <div class="color-picker-item">
-                            <label for="input-color-bg2">Fondo 2</label>
-                            <input type="color" id="input-color-bg2" value="#ffcbd5">
-                        </div>
-                    </div>
-                    <small class="helper-text">Modifica los colores a tu gusto para adaptarlos al evento.</small>
-                </section>
-
-                <!-- SECCIÓN 3: IMAGEN DE PORTADA -->
-                <section class="editor-section">
-                    <h2 class="section-title">
-                        <span class="step-num">3</span> Imagen de Portada
-                    </h2>
 
                     <!-- Subida de Foto Personalizada -->
                     <div class="form-group">
-                        <label>Sube una foto personalizada</label>
+                        <label>Sube una foto de portada</label>
                         <input type="file" id="input-bg-upload" accept="image/*" style="display: none;">
                         <label for="input-bg-upload" class="file-upload-btn-label">
                             <span class="upload-icon">📷</span> Seleccionar Foto...
@@ -110,36 +84,224 @@
                             <button class="remove-upload-btn" id="btn-remove-upload"
                                 title="Quitar foto y usar preset">✕</button>
                         </div>
-                        <small class="helper-text">Ideal para colocar la foto del festejado en la portada.</small>
+                    </div>
+                </section>
+
+                <!-- SECCIÓN 2: ESTÉTICA Y COLORES -->
+                <section class="editor-section">
+                    <h2 class="section-title">
+                        <span class="step-num">2</span> Estética y Colores
+                    </h2>
+                    
+                    <div class="form-group">
+                        <label>Temas de Color</label>
+                        <div class="theme-selector">
+                            <button class="theme-btn active" data-theme="pink-dream"
+                                style="background: linear-gradient(135deg, #FBCDCB, #FFF5F5);"></button>
+                            <button class="theme-btn" data-theme="lavender-blossom"
+                                style="background: linear-gradient(135deg, #E8DFF5, #FFF5FF);"></button>
+                            <button class="theme-btn" data-theme="peach-cream"
+                                style="background: linear-gradient(135deg, #FAD2E1, #FFF9F5);"></button>
+                            <button class="theme-btn" data-theme="mint-sweet"
+                                style="background: linear-gradient(135deg, #D8F3DC, #F5FFFA);"></button>
+                            <button class="theme-btn" data-theme="gold-classic"
+                                style="background: linear-gradient(135deg, #d4af37, #111111);"></button>
+                            <button class="theme-btn" data-theme="blue-ocean"
+                                style="background: linear-gradient(135deg, #a2d2ff, #f8f9fa);"></button>
+                        </div>
                     </div>
 
-                    <!-- Diseños Predeterminados (Presets) -->
-                    <div class="form-group">
-                        <label>Estilos de Fondo</label>
-                        <div class="preset-grid" id="presetGrid">
-                            <button class="preset-btn active" data-preset="photo" id="preset-btn-photo"
-                                title="Usar portada con foto">
-                                <span class="preset-thumb photo-thumb" id="preset-thumb-img"></span>
-                                <span class="preset-label">Con Foto</span>
-                            </button>
-                            <button class="preset-btn" data-preset="minimalist" id="preset-btn-minimalist"
-                                title="Fondo limpio con marco elegante">
-                                <span class="preset-thumb minimal-thumb"></span>
-                                <span class="preset-label">Limpio</span>
-                            </button>
-                            <button class="preset-btn" data-preset="decorative" id="preset-btn-decorative"
-                                title="Fondo artístico texturizado">
-                                <span class="preset-thumb decorative-thumb"></span>
-                                <span class="preset-label">Decorativo</span>
-                            </button>
+                    <div class="form-group" style="margin-top: 15px;">
+                        <label>Colores Personalizados</label>
+                        <div class="color-picker-grid">
+                            <div class="color-picker-item circular-picker">
+                                <label for="input-color-primary">Primario</label>
+                                <input type="color" id="input-color-primary" value="#d4af37">
+                            </div>
+                            <div class="color-picker-item circular-picker">
+                                <label for="input-color-text">Texto</label>
+                                <input type="color" id="input-color-text" value="#403234">
+                            </div>
+                            <div class="color-picker-item circular-picker">
+                                <label for="input-color-bg1">Fondo 1</label>
+                                <input type="color" id="input-color-bg1" value="#fff0f3">
+                            </div>
+                            <div class="color-picker-item circular-picker">
+                                <label for="input-color-bg2">Fondo 2</label>
+                                <input type="color" id="input-color-bg2" value="#ffcbd5">
+                            </div>
                         </div>
                     </div>
                 </section>
 
-                <!-- SECCIÓN 4: GALERÍA DE FOTOS (CARRUSEL) (NUEVO) -->
+                <!-- SECCIÓN 3: DATOS DEL EVENTO -->
                 <section class="editor-section">
                     <h2 class="section-title">
-                        <span class="step-num">4</span> Galería / Carrusel de Fotos
+                        <span class="step-num">3</span> Datos del Evento
+                    </h2>
+                    
+                    <div class="form-group">
+                        <label for="input-internal-name">Nombre Interno del Proyecto</label>
+                        <input type="text" id="input-internal-name" value="{{ project.name }}">
+                    </div>
+                    <div class="form-group">
+                        <label for="input-title">Título de la Invitación</label>
+                        <input type="text" id="input-title" placeholder="Ej: Mis XV Años / Nuestra Boda">
+                    </div>
+                    <div class="form-group">
+                        <label for="input-names">Nombre(s) de los Festejados</label>
+                        <input type="text" id="input-names" placeholder="Ej: Ximena María / Sofía & Alejandro">
+                    </div>
+                    
+                    <div class="form-group-checkbox" style="margin-top: 15px;">
+                        <label class="checkbox-option">
+                            <input type="checkbox" id="input-show-phrase" checked>
+                            <span class="checkbox-custom"></span>
+                            Mostrar Frase / Mensaje
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label for="input-phrase">Frase o Mensaje de Bienvenida</label>
+                        <textarea id="input-phrase" rows="3"
+                            placeholder="Una frase hermosa de bienvenida..."></textarea>
+                    </div>
+
+                    <div class="form-group-checkbox" style="margin-top: 15px;">
+                        <label class="checkbox-option">
+                            <input type="checkbox" id="input-show-countdown" checked>
+                            <span class="checkbox-custom"></span>
+                            Mostrar Cuenta Regresiva
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label for="input-date">Fecha y Hora del Evento</label>
+                        <input type="datetime-local" id="input-date">
+                    </div>
+                    
+                    <div class="form-group-checkbox" style="margin-top: 15px;">
+                        <label class="checkbox-option">
+                            <input type="checkbox" id="input-show-parents" checked>
+                            <span class="checkbox-custom"></span>
+                            Mostrar Padres/Padrinos
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label for="input-parents">Padres y Padrinos</label>
+                        <textarea id="input-parents" rows="3"
+                            placeholder="Padres: Nombre & Nombre&#10;Padrinos: Nombre & Nombre"></textarea>
+                    </div>
+                </section>
+
+                <!-- SECCIÓN 4: UBICACIÓN -->
+                <section class="editor-section">
+                    <h2 class="section-title">
+                        <span class="step-num">4</span> Ubicación
+                    </h2>
+
+                    <div class="accordion-sub">
+                        <h3>⛪ Ceremonia</h3>
+                        <div class="form-group-checkbox">
+                            <label class="checkbox-option">
+                                <input type="checkbox" id="input-show-ceremony" checked>
+                                <span class="checkbox-custom"></span>
+                                Mostrar Ceremonia
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label for="input-ceremony-name">Nombre del Momento</label>
+                            <input type="text" id="input-ceremony-name" placeholder="Ej: Ceremonia Religiosa">
+                        </div>
+                        <div class="form-group">
+                            <label for="input-ceremony-place">Lugar</label>
+                            <input type="text" id="input-ceremony-place" placeholder="Ej: Parroquia...">
+                        </div>
+                        <div class="form-group">
+                            <label for="input-ceremony-address">Dirección</label>
+                            <input type="text" id="input-ceremony-address" placeholder="Dirección completa">
+                        </div>
+                        <div class="form-group">
+                            <label for="input-ceremony-time">Hora</label>
+                            <input type="text" id="input-ceremony-time" placeholder="Ej: 17:00 Hrs">
+                        </div>
+                        <div class="form-group">
+                            <label for="input-ceremony-map">Enlace de Google Maps</label>
+                            <input type="url" id="input-ceremony-map" placeholder="https://maps.google.com/...">
+                        </div>
+                    </div>
+
+                    <div class="accordion-sub">
+                        <h3>🥂 Recepción</h3>
+                        <div class="form-group-checkbox">
+                            <label class="checkbox-option">
+                                <input type="checkbox" id="input-show-reception" checked>
+                                <span class="checkbox-custom"></span>
+                                Mostrar Recepción
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label for="input-reception-name">Nombre del Momento</label>
+                            <input type="text" id="input-reception-name" placeholder="Ej: Banquete y Fiesta">
+                        </div>
+                        <div class="form-group">
+                            <label for="input-reception-place">Salón / Quinta</label>
+                            <input type="text" id="input-reception-place" placeholder="Ej: Hacienda de las Flores">
+                        </div>
+                        <div class="form-group">
+                            <label for="input-reception-address">Dirección</label>
+                            <input type="text" id="input-reception-address"
+                                placeholder="Dirección completa">
+                        </div>
+                        <div class="form-group">
+                            <label for="input-reception-time">Hora</label>
+                            <input type="text" id="input-reception-time" placeholder="Ej: 19:00 Hrs">
+                        </div>
+                        <div class="form-group">
+                            <label for="input-reception-map">Enlace de Google Maps</label>
+                            <input type="url" id="input-reception-map" placeholder="https://maps.google.com/...">
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECCIÓN 5: DETALLES DE INVITACIÓN -->
+                <section class="editor-section">
+                    <h2 class="section-title">
+                        <span class="step-num">5</span> Detalles de Invitación
+                    </h2>
+                    
+                    <div class="form-group-checkbox">
+                        <label class="checkbox-option">
+                            <input type="checkbox" id="input-show-dress-code" checked>
+                            <span class="checkbox-custom"></span>
+                            Mostrar Código de Vestimenta
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label for="input-dress-code">Código de Vestimenta</label>
+                        <input type="text" id="input-dress-code"
+                            placeholder="Ej: Formal (Traje oscuro / vestido largo)">
+                    </div>
+
+                    <div class="form-group-checkbox" style="margin-top: 15px;">
+                        <label class="checkbox-option">
+                            <input type="checkbox" id="input-show-gifts" checked>
+                            <span class="checkbox-custom"></span>
+                            Mostrar Mesa de Regalos / Cuentas
+                        </label>
+                    </div>
+                    <div class="form-group">
+                        <label for="input-gift-table">Mesa de Regalos (Instrucciones)</label>
+                        <input type="text" id="input-gift-table" placeholder="Ej: Liverpool (Mesa 50493) | Amazon">
+                    </div>
+                    <div class="form-group">
+                        <label for="input-bank-account">Cuenta Bancaria para Regalo en Efectivo</label>
+                        <input type="text" id="input-bank-account" placeholder="Ej: CLABE: 0123 4567 89... (Banco)">
+                    </div>
+                </section>
+
+                <!-- SECCIÓN 6: GALERÍA DE FOTOS -->
+                <section class="editor-section">
+                    <h2 class="section-title">
+                        <span class="step-num">6</span> Galería de Fotos
                     </h2>
 
                     <!-- Activar/Desactivar Galería -->
@@ -152,7 +314,6 @@
                     </div>
 
                     <div id="gallery-controls-container">
-                        <!-- Subir Múltiples Fotos -->
                         <div class="form-group">
                             <label>Sube fotos para la Galería</label>
                             <input type="file" id="input-gallery-upload" accept="image/*" multiple
@@ -160,12 +321,8 @@
                             <label for="input-gallery-upload" class="file-upload-btn-label">
                                 <span class="upload-icon">🖼️</span> Seleccionar Fotos...
                             </label>
-                            <small class="helper-text">Puedes subir hasta 6 fotos a la vez.</small>
                         </div>
-
-                        <!-- Miniaturas de la Galería -->
                         <div class="form-group">
-                            <label>Imágenes cargadas en la Galería</label>
                             <div class="gallery-editor-thumbs" id="editorGalleryThumbs">
                                 <!-- Las miniaturas se generarán dinámicamente -->
                             </div>
@@ -173,123 +330,29 @@
                     </div>
                 </section>
 
-                <!-- SECCIÓN 5: INFORMACIÓN GENERAL -->
+                <!-- SECCIÓN 7: RSVP -->
                 <section class="editor-section">
                     <h2 class="section-title">
-                        <span class="step-num">5</span> Datos del Evento
+                        <span class="step-num">7</span> Confirmación (RSVP)
                     </h2>
-                    <div class="form-group">
-                        <label for="input-internal-name">Nombre Interno del Proyecto</label>
-                        <input type="text" id="input-internal-name" value="{{ project.name }}">
-                        <small class="helper-text">Solo tú verás este nombre en tu panel.</small>
+                    
+                    <div class="form-group-checkbox">
+                        <label class="checkbox-option">
+                            <input type="checkbox" id="input-show-rsvp" checked>
+                            <span class="checkbox-custom"></span>
+                            Mostrar Formulario de Confirmación
+                        </label>
                     </div>
                     <div class="form-group">
-                        <label for="input-title">Título de la Invitación</label>
-                        <input type="text" id="input-title" placeholder="Ej: Mis XV Años / Nuestra Boda">
+                        <label for="input-whatsapp">WhatsApp para Confirmaciones</label>
+                        <input type="tel" id="input-whatsapp" placeholder="Número a 10 dígitos">
                     </div>
                     <div class="form-group">
-                        <label for="input-names">Nombre(s) de los Festejados</label>
-                        <input type="text" id="input-names" placeholder="Ej: Ximena María / Sofía & Alejandro">
-                    </div>
-                    <div class="form-group">
-                        <label for="input-phrase">Frase o Mensaje de Bienvenida</label>
-                        <textarea id="input-phrase" rows="3"
-                            placeholder="Una frase hermosa de bienvenida..."></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="input-date">Fecha y Hora del Evento</label>
-                        <input type="datetime-local" id="input-date">
-                    </div>
-                    <div class="form-group">
-                        <label for="input-parents">Padres y Padrinos (Opcional)</label>
-                        <textarea id="input-parents" rows="3"
-                            placeholder="Padres: Nombre & Nombre&#10;Padrinos: Nombre & Nombre"></textarea>
+                        <label for="input-music-url">Enlace MP3 de Música de Fondo</label>
+                        <input type="url" id="input-music-url" placeholder="https://ejemplo.com/musica.mp3">
                     </div>
                 </section>
-
-                <!-- SECCIÓN 6: UBICACIÓN Y HORARIOS -->
-                <section class="editor-section">
-                    <h2 class="section-title">
-                        <span class="step-num">6</span> Ceremonia y Recepción
-                    </h2>
-
-                    <div class="accordion-sub">
-                        <h3>⛪ Ceremonia / Iglesia</h3>
-                        <div class="form-group-checkbox">
-                            <label class="checkbox-option">
-                                <input type="checkbox" id="input-show-ceremony" checked>
-                                <span class="checkbox-custom"></span>
-                                Mostrar Sección de Ceremonia
-                            </label>
-                        </div>
-                        <div class="form-group">
-                            <label for="input-ceremony-name">Nombre del Momento</label>
-                            <input type="text" id="input-ceremony-name" placeholder="Ej: Ceremonia Religiosa">
-                        </div>
-                        <div class="form-group">
-                            <label for="input-ceremony-place">Lugar / Templo</label>
-                            <input type="text" id="input-ceremony-place" placeholder="Ej: Parroquia de Santa María">
-                        </div>
-                        <div class="form-group">
-                            <label for="input-ceremony-address">Dirección</label>
-                            <input type="text" id="input-ceremony-address" placeholder="Ej: Av. Reforma 123, Centro">
-                        </div>
-                        <div class="form-group">
-                            <label for="input-ceremony-time">Hora</label>
-                            <input type="text" id="input-ceremony-time" placeholder="Ej: 17:00 Hrs">
-                        </div>
-                        <div class="form-group">
-                            <label for="input-ceremony-map">Enlace de Google Maps / Waze</label>
-                            <input type="url" id="input-ceremony-map" placeholder="https://maps.google.com/...">
-                        </div>
-                    </div>
-
-                    <div class="accordion-sub">
-                        <h3>🥂 Recepción / Fiesta</h3>
-                        <div class="form-group">
-                            <label for="input-reception-name">Nombre del Momento</label>
-                            <input type="text" id="input-reception-name" placeholder="Ej: Banquete y Fiesta">
-                        </div>
-                        <div class="form-group">
-                            <label for="input-reception-place">Salón / Quinta</label>
-                            <input type="text" id="input-reception-place" placeholder="Ej: Hacienda de las Flores">
-                        </div>
-                        <div class="form-group">
-                            <label for="input-reception-address">Dirección</label>
-                            <input type="text" id="input-reception-address"
-                                placeholder="Ej: Camino Real 789, San Ángel">
-                        </div>
-                        <div class="form-group">
-                            <label for="input-reception-time">Hora</label>
-                            <input type="text" id="input-reception-time" placeholder="Ej: 19:00 Hrs">
-                        </div>
-                        <div class="form-group">
-                            <label for="input-reception-map">Enlace de Google Maps / Waze</label>
-                            <input type="url" id="input-reception-map" placeholder="https://maps.google.com/...">
-                        </div>
-                    </div>
-                </section>
-
-                <!-- SECCIÓN 7: DETALLES EXTRA -->
-                <section class="editor-section">
-                    <h2 class="section-title">
-                        <span class="step-num">7</span> Código de Vestimenta y Regalos
-                    </h2>
-                    <div class="form-group">
-                        <label for="input-dress-code">Código de Vestimenta</label>
-                        <input type="text" id="input-dress-code"
-                            placeholder="Ej: Formal (Traje oscuro / vestido largo)">
-                    </div>
-                    <div class="form-group">
-                        <label for="input-gift-table">Mesa de Regalos (Tiendas y Códigos)</label>
-                        <input type="text" id="input-gift-table" placeholder="Ej: Liverpool (Mesa 50493) | Amazon">
-                    </div>
-                    <div class="form-group">
-                        <label for="input-bank-account">Cuenta Bancaria para Regalo en Efectivo</label>
-                        <input type="text" id="input-bank-account" placeholder="Ej: CLABE: 0123 4567 89... (Banco)">
-                    </div>
-                </section>
-
+                
                 <!-- SECCIÓN 8: EXPORTAR PLANTILLA -->
                 <section class="editor-section highlight-section">
                     <h2 class="section-title">
@@ -304,29 +367,11 @@
                     </div>
                 </section>
 
-                <!-- SECCIÓN 9: CONFIRMACIÓN Y MÚSICA -->
-                <section class="editor-section">
-                    <h2 class="section-title">
-                        <span class="step-num">9</span> RSVP y Música
-                    </h2>
-                    <div class="form-group">
-                        <label for="input-whatsapp">WhatsApp para Confirmaciones (10 dígitos)</label>
-                        <input type="tel" id="input-whatsapp" placeholder="Ej: 3345389556">
-                        <small class="helper-text">Las confirmaciones llegarán a este chat de WhatsApp.</small>
-                    </div>
-                    <div class="form-group">
-                        <label for="input-music-url">Enlace MP3 de Música de Fondo</label>
-                        <input type="url" id="input-music-url" placeholder="https://ejemplo.com/musica.mp3">
-                        <small class="helper-text">Deja el enlace por defecto o ingresa una URL de audio
-                            directa.</small>
-                    </div>
-                </section>
-
             </div>
 
-            <footer class="editor-footer">
-                <button class="action-btn success-btn" id="btn-export-config">
-                    <span>💾</span> Guardar Configuración
+            <footer class="editor-footer" style="border-top: none;">
+                <button class="action-btn success-btn" id="btn-export-config" style="background-color: #a26c68; color: white;">
+                    <span>📥</span> Guardar Cambios
                 </button>
                 <button class="action-btn outline-btn" id="btn-reset-config">
                     <span>🔄</span> Restaurar Valores

@@ -59,6 +59,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const inputShowCeremony = document.getElementById('input-show-ceremony');
     const invCeremonyCard = document.getElementById('invCeremonyCard');
     
+    // --- NUEVOS CHECKBOXES DE VISIBILIDAD ---
+    const inputShowCover = document.getElementById('input-show-cover');
+    const inputShowPhrase = document.getElementById('input-show-phrase');
+    const inputShowCountdown = document.getElementById('input-show-countdown');
+    const inputShowParents = document.getElementById('input-show-parents');
+    const inputShowReception = document.getElementById('input-show-reception');
+    const inputShowDressCode = document.getElementById('input-show-dress-code');
+    const inputShowGifts = document.getElementById('input-show-gifts');
+    const inputShowRsvp = document.getElementById('input-show-rsvp');
+    
     // Generador de Enlaces de Invitados (removido, ahora se descarga HTML)
     // Se mantienen variables en null para evitar errores
     const inputGuestName = document.getElementById('input-guest-name');
@@ -339,8 +349,26 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // Configurar visibilidad de ceremonia (NUEVO)
         showCeremony = config.showCeremony !== undefined ? config.showCeremony : true;
-        inputShowCeremony.checked = showCeremony;
-        invCeremonyCard.style.display = showCeremony ? 'block' : 'none';
+        if (inputShowCeremony) inputShowCeremony.checked = showCeremony;
+        if (invCeremonyCard) invCeremonyCard.style.display = showCeremony ? 'block' : 'none';
+        
+        // --- VISIBILIDAD DE NUEVAS SECCIONES ---
+        const setVisibility = (checkbox, section, value, defaultVal, displayStyle = 'block') => {
+            if (checkbox && section) {
+                const isVisible = value !== undefined ? value : defaultVal;
+                checkbox.checked = isVisible;
+                section.style.display = isVisible ? displayStyle : 'none';
+            }
+        };
+
+        setVisibility(inputShowCover, invHero, config.showCover, true, 'flex');
+        setVisibility(inputShowPhrase, document.getElementById('preview-phrase')?.closest('section'), config.showPhrase, true);
+        setVisibility(inputShowCountdown, document.getElementById('countdown')?.closest('section'), config.showCountdown, true);
+        setVisibility(inputShowParents, document.getElementById('preview-parents')?.closest('section'), config.showParents, true);
+        setVisibility(inputShowReception, document.getElementById('preview-reception-name')?.closest('.location-card'), config.showReception, true);
+        setVisibility(inputShowDressCode, document.getElementById('preview-dress-code')?.closest('section'), config.showDressCode, true);
+        setVisibility(inputShowGifts, document.getElementById('preview-gift-table')?.closest('section'), config.showGifts, true);
+        setVisibility(inputShowRsvp, document.getElementById('rsvpForm')?.closest('section'), config.showRsvp, true);
         
         // Detectar si la configuración trae una foto subida previamente
         if (config.bgImage && !config.bgImage.startsWith('assets/')) {
@@ -728,7 +756,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         body: formData
                     });
                     if (!response.ok) {
-                        throw new Error(`Error en la carga: ${response.status}`);
+                        let errorMsg = `Error HTTP: ${response.status}`;
+                        try {
+                            const errData = await response.json();
+                            if (errData.detail) errorMsg = errData.detail;
+                        } catch (e) {}
+                        throw new Error(errorMsg);
                     }
                     const data = await response.json();
                     
@@ -744,7 +777,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     applyPreset('photo');
                 } catch (error) {
                     console.error('Error subiendo imagen:', error);
-                    alert('Error subiendo la imagen de portada');
+                    alert(`Error subiendo la imagen de portada: ${error.message}`);
                 }
             }
         });
@@ -774,9 +807,58 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         
         // Mostrar/Ocultar Ceremonia (Checkbox) (NUEVO)
-        inputShowCeremony.addEventListener('change', (event) => {
-            showCeremony = event.target.checked;
-            invCeremonyCard.style.display = showCeremony ? 'block' : 'none';
+        if (inputShowCeremony) {
+            inputShowCeremony.addEventListener('change', (event) => {
+                showCeremony = event.target.checked;
+                if (invCeremonyCard) invCeremonyCard.style.display = showCeremony ? 'block' : 'none';
+            });
+        }
+        
+        // --- LOGICA DE NUEVOS CHECKBOXES ---
+        const setupToggle = (checkbox, getSection, displayStyle = 'block') => {
+            if (checkbox) {
+                checkbox.addEventListener('change', (e) => {
+                    const section = getSection();
+                    if (section) section.style.display = e.target.checked ? displayStyle : 'none';
+                });
+            }
+        };
+
+        setupToggle(inputShowCover, () => invHero, 'flex');
+        setupToggle(inputShowPhrase, () => document.getElementById('preview-phrase')?.closest('section'));
+        setupToggle(inputShowCountdown, () => document.getElementById('countdown')?.closest('section'));
+        setupToggle(inputShowParents, () => document.getElementById('preview-parents')?.closest('section'));
+        setupToggle(inputShowReception, () => document.getElementById('preview-reception-name')?.closest('.location-card'));
+        setupToggle(inputShowDressCode, () => document.getElementById('preview-dress-code')?.closest('section'));
+        setupToggle(inputShowGifts, () => document.getElementById('preview-gift-table')?.closest('section'));
+        setupToggle(inputShowRsvp, () => document.getElementById('rsvpForm')?.closest('section'));
+
+        // --- TEMAS DE COLORES (CIRCULARES) ---
+        const colorThemes = {
+            'pink-dream': { primary: '#FBCDCB', text: '#403234', bg1: '#FFF5F5', bg2: '#FBCDCB' },
+            'lavender-blossom': { primary: '#E8DFF5', text: '#4a405a', bg1: '#FFF5FF', bg2: '#E8DFF5' },
+            'peach-cream': { primary: '#FAD2E1', text: '#503540', bg1: '#FFF9F5', bg2: '#FAD2E1' },
+            'mint-sweet': { primary: '#D8F3DC', text: '#304535', bg1: '#F5FFFA', bg2: '#D8F3DC' },
+            'gold-classic': { primary: '#d4af37', text: '#ffffff', bg1: '#111111', bg2: '#222222' },
+            'blue-ocean': { primary: '#a2d2ff', text: '#203040', bg1: '#f8f9fa', bg2: '#cde4ff' }
+        };
+
+        const themeBtns = document.querySelectorAll('.theme-btn');
+        themeBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                themeBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const themeName = btn.getAttribute('data-theme');
+                if (colorThemes[themeName]) {
+                    const t = colorThemes[themeName];
+                    if(inputColorPrimary) inputColorPrimary.value = t.primary;
+                    if(inputColorText) inputColorText.value = t.text;
+                    if(inputColorBg1) inputColorBg1.value = t.bg1;
+                    if(inputColorBg2) inputColorBg2.value = t.bg2;
+                    updateInvitationColors();
+                    generateParticles(currentTemplateId);
+                }
+            });
         });
         
         // 4. Mostrar/Ocultar Galería (Checkbox) (NUEVO)
@@ -806,12 +888,18 @@ document.addEventListener('DOMContentLoaded', () => {
                             body: formData
                         });
                         if (!response.ok) {
-                            throw new Error(`Error en la carga: ${response.status}`);
+                            let errorMsg = `Error HTTP: ${response.status}`;
+                            try {
+                                const errData = await response.json();
+                                if (errData.detail) errorMsg = errData.detail;
+                            } catch (e) {}
+                            throw new Error(errorMsg);
                         }
                         const data = await response.json();
                         activeGalleryImages.push(data.url);
                     } catch (error) {
                         console.error('Error subiendo imagen de galería:', error);
+                        alert(`Error subiendo imagen a la galería: ${error.message}`);
                     }
                 }
                 
@@ -913,8 +1001,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     showGallery: isGalleryVisible,
                     galleryImages: [...activeGalleryImages],
                     
-                    // Configuración de ceremonia
-                    showCeremony: showCeremony
+                    // Configuración de visibilidad (secciones)
+                    showCeremony: showCeremony,
+                    showCover: inputShowCover ? inputShowCover.checked : true,
+                    showPhrase: inputShowPhrase ? inputShowPhrase.checked : true,
+                    showCountdown: inputShowCountdown ? inputShowCountdown.checked : true,
+                    showParents: inputShowParents ? inputShowParents.checked : true,
+                    showReception: inputShowReception ? inputShowReception.checked : true,
+                    showDressCode: inputShowDressCode ? inputShowDressCode.checked : true,
+                    showGifts: inputShowGifts ? inputShowGifts.checked : true,
+                    showRsvp: inputShowRsvp ? inputShowRsvp.checked : true
                 };
                 
                 const targetConfig = defaultTemplates[templateId];
@@ -966,8 +1062,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 showGallery: isGalleryVisible,
                 galleryImages: [...activeGalleryImages],
                 
-                // Guardar visibilidad de ceremonia
-                showCeremony: showCeremony
+                // Guardar visibilidad (secciones)
+                showCeremony: showCeremony,
+                showCover: inputShowCover ? inputShowCover.checked : true,
+                showPhrase: inputShowPhrase ? inputShowPhrase.checked : true,
+                showCountdown: inputShowCountdown ? inputShowCountdown.checked : true,
+                showParents: inputShowParents ? inputShowParents.checked : true,
+                showReception: inputShowReception ? inputShowReception.checked : true,
+                showDressCode: inputShowDressCode ? inputShowDressCode.checked : true,
+                showGifts: inputShowGifts ? inputShowGifts.checked : true,
+                showRsvp: inputShowRsvp ? inputShowRsvp.checked : true
             };
             
             localStorage.setItem('inv_generator_config', JSON.stringify(finalConfig));

@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==========================================================================
     
     // Elementos del Editor
+    const inputInternalName = document.getElementById('input-internal-name');
     const inputTitle = document.getElementById('input-title');
     const inputNames = document.getElementById('input-names');
     const inputPhrase = document.getElementById('input-phrase');
@@ -58,14 +59,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const inputShowCeremony = document.getElementById('input-show-ceremony');
     const invCeremonyCard = document.getElementById('invCeremonyCard');
     
-    // Generador de Enlaces de Invitados
+    // Generador de Enlaces de Invitados (removido, ahora se descarga HTML)
+    // Se mantienen variables en null para evitar errores
     const inputGuestName = document.getElementById('input-guest-name');
     const inputGuestPasses = document.getElementById('input-guest-passes');
-    const btnGenerateLink = document.getElementById('btn-generate-link');
-    const generatedLinkArea = document.getElementById('generatedLinkArea');
-    const inputGeneratedLink = document.getElementById('input-generated-link');
-    const btnCopyLink = document.getElementById('btn-copy-link');
-    const btnShareWhatsapp = document.getElementById('btn-share-whatsapp');
+    const btnGenerateLink = null;
+    const generatedLinkArea = null;
+    const inputGeneratedLink = null;
+    const btnCopyLink = null;
+    const btnShareWhatsapp = null;
     
     // Tarjeta de Bienvenida de Invitados
     const guestWelcomeCard = document.getElementById('guestWelcomeCard');
@@ -179,23 +181,26 @@ document.addEventListener('DOMContentLoaded', () => {
             currentTemplateId = 'quinceanera';
         }
         
-        // 3. Cargar datos del LocalStorage o usar valores de fábrica
-        const savedConfig = localStorage.getItem('inv_generator_config');
-        if (savedConfig) {
-            try {
-                const parsed = JSON.parse(savedConfig);
-                if (parsed && parsed.id === currentTemplateId) {
-                    currentConfig = parsed;
-                    console.log("Configuración cargada del LocalStorage:", currentConfig);
-                } else {
+        // 3. Cargar datos desde la base de datos (inyectados como INITIAL_CONFIG) o localStorage
+        if (typeof INITIAL_CONFIG !== 'undefined') {
+            currentConfig = INITIAL_CONFIG;
+            console.log("Configuración cargada desde BD:", currentConfig);
+        } else {
+            const savedConfig = localStorage.getItem('inv_generator_config');
+            if (savedConfig) {
+                try {
+                    const parsed = JSON.parse(savedConfig);
+                    if (parsed && parsed.id === currentTemplateId) {
+                        currentConfig = parsed;
+                    } else {
+                        currentConfig = loadDefaultTemplateConfig(currentTemplateId);
+                    }
+                } catch (e) {
                     currentConfig = loadDefaultTemplateConfig(currentTemplateId);
                 }
-            } catch (e) {
-                console.error("Error al parsear savedConfig, cargando valores por defecto:", e);
+            } else {
                 currentConfig = loadDefaultTemplateConfig(currentTemplateId);
             }
-        } else {
-            currentConfig = loadDefaultTemplateConfig(currentTemplateId);
         }
         
         // 4. Aplicar la configuración al UI
@@ -337,14 +342,19 @@ document.addEventListener('DOMContentLoaded', () => {
         inputShowCeremony.checked = showCeremony;
         invCeremonyCard.style.display = showCeremony ? 'block' : 'none';
         
-        // Resetear foto de portada personalizada si cambiamos de tema
-        if (config.id !== currentConfig.id || !uploadedPhotoUrl) {
+        // Detectar si la configuración trae una foto subida previamente
+        if (config.bgImage && !config.bgImage.startsWith('assets/')) {
+            uploadedPhotoUrl = config.bgImage;
+        } else if (config.id !== currentConfig.id) {
             uploadedPhotoUrl = null;
-            inputBgUpload.value = '';
-            uploadPreviewArea.style.display = 'none';
-        } else {
+        }
+
+        if (uploadedPhotoUrl) {
             presetThumbImg.style.backgroundImage = `url('${uploadedPhotoUrl}')`;
             uploadPreviewArea.style.display = 'flex';
+        } else {
+            inputBgUpload.value = '';
+            uploadPreviewArea.style.display = 'none';
         }
         
         // 7. Iniciar partículas
@@ -363,8 +373,12 @@ document.addEventListener('DOMContentLoaded', () => {
         startCountdown(config.date);
         
         // Ocultar sección de enlaces generados al cambiar de plantilla
-        generatedLinkArea.style.display = 'none';
-        inputGuestName.value = '';
+        if (generatedLinkArea) {
+            generatedLinkArea.style.display = 'none';
+        }
+        if (inputGuestName) {
+            inputGuestName.value = '';
+        }
     }
     
     // Obtener paleta por defecto
@@ -713,6 +727,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         method: 'POST',
                         body: formData
                     });
+                    if (!response.ok) {
+                        throw new Error(`Error en la carga: ${response.status}`);
+                    }
                     const data = await response.json();
                     
                     if (uploadedPhotoUrl && uploadedPhotoUrl.startsWith('blob:')) {
@@ -788,6 +805,9 @@ document.addEventListener('DOMContentLoaded', () => {
                             method: 'POST',
                             body: formData
                         });
+                        if (!response.ok) {
+                            throw new Error(`Error en la carga: ${response.status}`);
+                        }
                         const data = await response.json();
                         activeGalleryImages.push(data.url);
                     } catch (error) {
@@ -825,83 +845,29 @@ document.addEventListener('DOMContentLoaded', () => {
             startCarouselAutoSlide(); // Reiniciar temporizador al hacer click manual
         });
         
-        // 5. Generador de Enlaces de Invitados
-        btnGenerateLink.addEventListener('click', async () => {
-            const guestName = inputGuestName.value.trim();
-            const passesVal = inputGuestPasses.value;
-            
-            if (!guestName) {
-                alert('Por favor escribe el nombre del invitado para generar su enlace personalizado.');
-                inputGuestName.focus();
-                return;
-            }
-            
-            // Guardar configuración automáticamente antes de generar el enlace
-            await saveConfigToServer(true);
-            
-            try {
-                const response = await fetch('/admin/generate_link', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        name: guestName,
-                        passes_allowed: parseInt(passesVal, 10),
-                        invitation_id: 1 
-                    })
-                });
-                const data = await response.json();
-                
-                if(response.ok) {
-                    inputGeneratedLink.value = data.link;
-                    generatedLinkArea.style.display = 'block';
-                } else {
-                    alert('Error al generar enlace: ' + (data.detail || 'Desconocido'));
-                }
-            } catch(e) {
-                console.error(e);
-                alert('Error de conexión al generar el enlace');
-            }
-        });
+        // 5. Generador de Enlaces de Invitados (Mantenemos por compatibilidad, aunque ya no se usan)
+        if (btnGenerateLink) {
+            btnGenerateLink.addEventListener('click', async () => {
+                // Función removida en UI
+            });
+        }
 
         const btnGenerateGeneralLink = document.getElementById('btn-generate-general-link');
         if (btnGenerateGeneralLink) {
             btnGenerateGeneralLink.addEventListener('click', async () => {
-                // Guardar configuración automáticamente antes de generar el enlace
-                await saveConfigToServer(true);
-                
-                // Genera el enlace general usando el ID de configuración guardado (por defecto 1 en esta demo)
-                const configId = 1;
-                const generalLink = `${window.location.origin}/invitacion/general/${configId}`;
-                inputGeneratedLink.value = generalLink;
-                generatedLinkArea.style.display = 'block';
+                 // Función removida en UI
             });
         }
         
         // Copiar Enlace
-        btnCopyLink.addEventListener('click', () => {
-            inputGeneratedLink.select();
-            navigator.clipboard.writeText(inputGeneratedLink.value).then(() => {
-                alert('📋 ¡Enlace personalizado copiado al portapapeles! Puedes enviarlo por WhatsApp, Telegram o correo.');
-            }).catch(err => {
-                console.error('Error al copiar enlace:', err);
-                alert('No se pudo copiar de forma automática. Por favor copia manualmente el texto de la casilla.');
-            });
-        });
+        if (btnCopyLink) {
+            btnCopyLink.addEventListener('click', () => {});
+        }
         
         // Compartir por WhatsApp
-        btnShareWhatsapp.addEventListener('click', () => {
-            const guestName = inputGuestName.value.trim();
-            const generatedLink = inputGeneratedLink.value;
-            
-            let shareText = `¡Hola *${guestName}*! 👋\n\n`;
-            shareText += `Te compartimos con mucha ilusión nuestra invitación digital para: *${inputTitle.value} - ${inputNames.value}* 🌸\n\n`;
-            shareText += `Abre el siguiente enlace personalizado para ver los detalles del evento y confirmar tu asistencia:\n`;
-            shareText += `🔗 ${generatedLink}\n\n`;
-            shareText += `¡Te esperamos!`;
-            
-            const whatsappUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(shareText)}`;
-            window.open(whatsappUrl, '_blank');
-        });
+        if (btnShareWhatsapp) {
+            btnShareWhatsapp.addEventListener('click', () => {});
+        }
         
         // 6. Cambiar de Plantilla
         templateButtons.forEach(btn => {
@@ -912,7 +878,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentConfig = {
                     id: templateId,
                     themeClass: `theme-${templateId}`,
-                    bgImage: `assets/${templateId}_bg.png`,
+                    bgImage: uploadedPhotoUrl || `assets/${templateId}_bg.png`,
                     title: inputTitle.value,
                     names: inputNames.value,
                     phrase: inputPhrase.value,
@@ -964,7 +930,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const finalConfig = {
                 id: currentTemplateId,
                 themeClass: `theme-${currentTemplateId}`,
-                bgImage: `assets/${currentTemplateId}_bg.png`,
+                bgImage: uploadedPhotoUrl || `assets/${currentTemplateId}_bg.png`,
+                internalName: inputInternalName ? inputInternalName.value : '',
                 title: inputTitle.value,
                 names: inputNames.value,
                 phrase: inputPhrase.value,
@@ -1007,11 +974,17 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('inv_generator_active_template', currentTemplateId);
             
             try {
-                await fetch('/admin/save_config', {
+                const endpoint = typeof PROJECT_ID !== 'undefined' ? `/admin/save_config/${PROJECT_ID}` : '/admin/save_config/1';
+                const response = await fetch(endpoint, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(finalConfig)
                 });
+                
+                if (!response.ok) {
+                    throw new Error(`Error HTTP: ${response.status}`);
+                }
+                
                 if (!silent) {
                     alert('🎉 ¡Configuración guardada en el sistema! Ahora tus invitados verán los cambios (cuenta regresiva, colores, textos).');
                 }

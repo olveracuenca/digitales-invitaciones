@@ -61,62 +61,111 @@ async def admin_page(request: Request, db: Session = Depends(get_db)):
     if not user:
         return RedirectResponse(url="/login")
     
-    return templates.TemplateResponse("editor.html", {"request": request, "user": user})
+    return templates.TemplateResponse("dashboard.html", {"request": request, "user": user})
 
-@router.post("/admin/generate_link")
-async def generate_link(
-    request: Request,
-    guest_data: schemas.GuestCreate,
-    db: Session = Depends(get_db)
-):
+@router.get("/admin/projects", response_class=HTMLResponse)
+async def projects_page(request: Request, db: Session = Depends(get_db)):
+    try:
+        user = await get_current_user_cookie(request, db)
+        if not user:
+            return RedirectResponse(url="/login")
+        
+        projects = db.query(models.InvitationConfig).all()
+        return templates.TemplateResponse("projects.html", {"request": request, "user": user, "projects": projects})
+    except Exception as e:
+        import traceback
+        error_msg = traceback.format_exc()
+        return HTMLResponse(f"<h1>Error Interno del Servidor</h1><pre>{error_msg}</pre>", status_code=500)
+
+@router.post("/admin/projects/create")
+async def create_project(request: Request, db: Session = Depends(get_db)):
     user = await get_current_user_cookie(request, db)
     if not user:
-        raise HTTPException(status_code=401, detail="No autorizado")
-
-    # Si no existe la configuración 1, la creamos (ejemplo simplificado)
-    invitation = db.query(models.InvitationConfig).filter(models.InvitationConfig.id == guest_data.invitation_id).first()
-    if not invitation:
-        invitation = models.InvitationConfig(
-            id=guest_data.invitation_id,
-            name="Evento Default",
-            config_json=json.dumps({"title": "Mi Evento", "themeClass": "theme-quinceanera"})
-        )
-        db.add(invitation)
-        db.commit()
-
-    new_guest = models.Guest(
-        invitation_id=invitation.id,
-        name=guest_data.name,
-        passes_allowed=guest_data.passes_allowed
+        return RedirectResponse(url="/login")
+        
+    new_project = models.InvitationConfig(
+        name="Nueva Invitación",
+        config_json=json.dumps({"title": "Mi Evento", "themeClass": "theme-quinceanera"})
     )
-    db.add(new_guest)
+    db.add(new_project)
     db.commit()
-    db.refresh(new_guest)
+    db.refresh(new_project)
+    
+    return RedirectResponse(url=f"/admin/editor/{new_project.id}", status_code=status.HTTP_303_SEE_OTHER)
 
-    # El link será /invitacion/{guest_id}
-    link = f"{request.base_url}invitacion/{new_guest.id}"
-    return JSONResponse(content={"link": link, "guest_id": new_guest.id})
+@router.post("/admin/projects/delete/{project_id}")
+async def delete_project(project_id: int, request: Request, db: Session = Depends(get_db)):
+    user = await get_current_user_cookie(request, db)
+    if not user:
+        return RedirectResponse(url="/login")
+        
+    project = db.query(models.InvitationConfig).filter(models.InvitationConfig.id == project_id).first()
+    if project:
+        db.delete(project)
+        db.commit()
+        
+    return RedirectResponse(url="/admin/projects", status_code=status.HTTP_303_SEE_OTHER)
 
-@router.post("/admin/save_config")
+@router.get("/admin/editor/{project_id}", response_class=HTMLResponse)
+async def editor_page(project_id: int, request: Request, db: Session = Depends(get_db)):
+    user = await get_current_user_cookie(request, db)
+    if not user:
+        return RedirectResponse(url="/login")
+        
+    project = db.query(models.InvitationConfig).filter(models.InvitationConfig.id == project_id).first()
+    if not project:
+        raise HTTPException(status_code=404, detail="Proyecto no encontrado")
+    
+    return templates.TemplateResponse("editor.html", {"request": request, "user": user, "project": project})
+
+from fastapi.responses import Response
+
+@router.get("/admin/export/{project_id}")
+async def export_html(project_id: int, request: Request, db: Session = Depends(get_db)):
+    user = await get_current_user_cookie(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="No autorizado")
+        
+    project = db.query(models.InvitationConfig).filter(models.InvitationConfig.id == project_id).first()
+    if not project:
+        raise HTTPException(status_code=404, detail="Proyecto no encontrado")
+        
+    config_data = json.loads(project.config_json) if project.config_json else {}
+    
+    # Renderizamos la plantilla con los datos del proyecto
+    rendered_html = templates.TemplateResponse("invitation.html", {
+        "request": request,
+        "guest": None,
+        "config": config_data,
+        "is_export": True # Flag para usar URLs absolutas
+    }).body
+    
+    return Response(
+        content=rendered_html,
+        media_type="text/html",
+        headers={"Content-Disposition": f'attachment; filename="invitacion_{project_id}.html"'}
+    )
+
+@router.post("/admin/save_config/{project_id}")
 async def save_config(
+    project_id: int,
     request: Request,
-    config_data: dict,
     db: Session = Depends(get_db)
 ):
     user = await get_current_user_cookie(request, db)
     if not user:
         raise HTTPException(status_code=401, detail="No autorizado")
 
-    invitation = db.query(models.InvitationConfig).filter(models.InvitationConfig.id == 1).first()
+    invitation = db.query(models.InvitationConfig).filter(models.InvitationConfig.id == project_id).first()
     if not invitation:
-        invitation = models.InvitationConfig(
-            id=1,
-            name="Evento Default",
-            config_json=json.dumps(config_data)
-        )
-        db.add(invitation)
-    else:
-        invitation.config_json = json.dumps(config_data)
+        raise HTTPException(status_code=404, detail="Proyecto no encontrado")
+    
+    config_data = await request.json()
+    
+    if "internalName" in config_data and config_data["internalName"]:
+        invitation.name = config_data["internalName"]
+        
+    invitation.config_json = json.dumps(config_data)
     
     db.commit()
     return {"message": "Configuración guardada en la base de datos"}
@@ -138,28 +187,27 @@ async def upload_image(
     if not user:
         raise HTTPException(status_code=401, detail="No autorizado")
     
-    cloudinary_url = os.getenv("CLOUDINARY_URL", "cloudinary://264237132926752:9EEg2A_WspijDVuw8yXZPg1WP_s@fkwffxqp")
+    cloudinary_url = os.getenv("CLOUDINARY_URL")
     
     if cloudinary_url:
         try:
-            # Subir a Cloudinary sin necesidad de configurar api_key/api_secret porque 
-            # cloudinary usa la variable CLOUDINARY_URL automáticamente
+            # Subir a Cloudinary
             result = cloudinary.uploader.upload(file.file, folder="invitaciones")
             return {"url": result.get("secure_url")}
         except Exception as e:
-            print("Error uploading to Cloudinary:", str(e))
-            raise HTTPException(status_code=500, detail="Error uploading to Cloudinary")
+            print("Error uploading to Cloudinary, falling back to local:", str(e))
+            # Reiniciar el puntero del archivo para poder leerlo otra vez
+            file.file.seek(0)
             
-    else:
-        # Fallback a local
-        upload_dir = "static/uploads"
-        os.makedirs(upload_dir, exist_ok=True)
+    # Fallback a local
+    upload_dir = "static/uploads"
+    os.makedirs(upload_dir, exist_ok=True)
+    
+    # Save the file securely (using a timestamp to avoid overwrites)
+    filename = f"{int(time.time())}_{file.filename}"
+    file_location = f"{upload_dir}/{filename}"
+    with open(file_location, "wb+") as file_object:
+        shutil.copyfileobj(file.file, file_object)
         
-        # Save the file securely (using a timestamp to avoid overwrites)
-        filename = f"{int(time.time())}_{file.filename}"
-        file_location = f"{upload_dir}/{filename}"
-        with open(file_location, "wb+") as file_object:
-            shutil.copyfileobj(file.file, file_object)
-            
-        # Return the URL path
-        return {"url": f"/static/uploads/{filename}"}
+    # Return the URL path
+    return {"url": f"/static/uploads/{filename}"}

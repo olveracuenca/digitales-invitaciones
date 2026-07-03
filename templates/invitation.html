@@ -12,7 +12,8 @@
         href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Fredoka:wght@300..700&family=Great+Vibes&family=Montserrat:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Quicksand:wght@300..700&display=swap"
         rel="stylesheet">
 
-    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet"
+        href="{% if is_export %}{{ request.base_url }}static/style.css{% else %}/static/style.css{% endif %}">
     <style>
         /* Fullscreen the invitation instead of using the phone simulator */
         body {
@@ -33,9 +34,8 @@
 
     <div class="invitation-container {{ config.get('themeClass', 'theme-quinceanera') }}" id="invitationContainer">
 
-        <!-- SECCIÓN HERO (PORTADA) -->
         <header class="inv-hero" id="invHero"
-            style="background-image: url('{{ config.get('bgImage', '/static/assets/quinceanera_bg.png') }}');">
+            style="background-image: url('{% set bg = config.get('bgImage', '/static/assets/quinceanera_bg.png') %}{% if is_export and bg.startswith('/static/') %}{{ request.base_url }}{{ bg[1:] }}{% elif is_export and not bg.startswith('http') %}{{ request.base_url }}static/{{ bg }}{% else %}{{ bg }}{% endif %}');">
             <div class="inv-overlay"></div>
             <div class="hero-frame-overlay" id="heroFrameOverlay"></div>
             <div class="decorations-container" id="decorationsContainer"></div>
@@ -133,7 +133,13 @@
                 <div class="carousel-track" id="previewGalleryTrack">
                     {% for img in config.get('galleryImages', ['/static/assets/placeholder.jpg',
                     '/static/assets/placeholder2.jpg']) %}
-                    <div class="carousel-slide" style="background-image: url('{{ img }}');"></div>
+                    {% set img_url = img %}
+                    {% if is_export and img.startswith('/static/') %}
+                    {% set img_url = request.base_url ~ img[1:] %}
+                    {% elif is_export and not img.startswith('http') %}
+                    {% set img_url = request.base_url ~ "static/" ~ img %}
+                    {% endif %}
+                    <div class="carousel-slide" style="background-image: url('{{ img_url }}');"></div>
                     {% endfor %}
                 </div>
                 <button class="carousel-control prev" onclick="moveCarousel(-1)" aria-label="Anterior">❮</button>

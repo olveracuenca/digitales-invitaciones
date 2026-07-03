@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Proyectos de Invitaciones - Cuencaolv Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #d4af37;
+            --primary-hover: #bfa033;
+            --bg-color: #f7f9fc;
+            --text-dark: #333;
+            --card-bg: #fff;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 0;
+            color: var(--text-dark);
+        }
+
+        .header {
+            background-color: var(--card-bg);
+            padding: 20px 40px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .back-btn {
+            color: #666;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1.2rem;
+        }
+
+        .back-btn:hover {
+            color: var(--primary);
+        }
+
+        .header h1 {
+            margin: 0;
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .page-header h2 {
+            margin: 0;
+            font-size: 2rem;
+        }
+
+        .create-btn {
+            background-color: var(--primary);
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: 600;
+            transition: background 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .create-btn:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .project-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            border: 2px solid transparent;
+        }
+
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary);
+        }
+
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .project-id {
+            font-size: 0.8rem;
+            color: #999;
+            background: #f0f0f0;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+
+        .project-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .project-footer {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+        }
+        
+        .edit-link {
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+            grid-column: 1 / -1;
+        }
+        
+        .empty-state p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <header class="header">
+        <div class="header-left">
+            <a href="/admin" class="back-btn" title="Volver al Dashboard">←</a>
+            <h1>Cuencaolv Admin</h1>
+        </div>
+        <div class="user-info">
+            <span>Hola, {{ user.username }}</span>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="page-header">
+            <h2>Mis Proyectos</h2>
+            <form action="/admin/projects/create" method="POST" style="margin: 0;">
+                <button type="submit" class="create-btn">+ Nuevo Proyecto</button>
+            </form>
+        </div>
+
+        <div class="projects-grid">
+            {% if projects %}
+                {% for project in projects %}
+                <div class="project-card">
+                    <div class="project-header">
+                        <span class="project-id">#{{ project.id }}</span>
+                    </div>
+                    <h3 class="project-title">{{ project.name }}</h3>
+                    <div class="project-footer" style="display: flex; justify-content: space-between; align-items: center;">
+                        <a href="/admin/editor/{{ project.id }}" class="edit-link" style="text-decoration: none;">Editar Diseño →</a>
+                        <form action="/admin/projects/delete/{{ project.id }}" method="POST" style="margin: 0;" onsubmit="return confirm('¿Seguro que deseas eliminar este proyecto? Esta acción no se puede deshacer.');">
+                            <button type="submit" class="delete-btn" style="background: transparent; border: none; color: #dc3545; cursor: pointer; font-size: 0.9rem; padding: 0;">Eliminar 🗑️</button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="empty-state">
+                    <h3>No tienes proyectos aún</h3>
+                    <p>Comienza creando tu primera invitación digital.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+
+</html>

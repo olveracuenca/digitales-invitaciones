@@ -27,7 +27,7 @@
                     <h1>Cuencaolv Invitaciones</h1>
                 </div>
                 <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <p style="margin: 0;">Diseño y personalización en tiempo real</p>
+                    <a href="/admin/projects" class="action-btn" style="background-color: transparent; border: 1px solid #333; color: #333; padding: 5px 15px; border-radius: 5px; text-decoration: none; font-size: 0.9rem; margin-right: 10px;">← Proyectos</a>
                     <a href="/logout" class="action-btn"
                         style="background-color: #333; color: white; padding: 5px 15px; border-radius: 5px; text-decoration: none; font-size: 0.9rem;">🚪
                         Cerrar Sesión</a>
@@ -179,6 +179,11 @@
                         <span class="step-num">5</span> Datos del Evento
                     </h2>
                     <div class="form-group">
+                        <label for="input-internal-name">Nombre Interno del Proyecto</label>
+                        <input type="text" id="input-internal-name" value="{{ project.name }}">
+                        <small class="helper-text">Solo tú verás este nombre en tu panel.</small>
+                    </div>
+                    <div class="form-group">
                         <label for="input-title">Título de la Invitación</label>
                         <input type="text" id="input-title" placeholder="Ej: Mis XV Años / Nuestra Boda">
                     </div>
@@ -285,51 +290,17 @@
                     </div>
                 </section>
 
-                <!-- SECCIÓN 8: CREADOR DE ENLACES DE INVITADOS -->
+                <!-- SECCIÓN 8: EXPORTAR PLANTILLA -->
                 <section class="editor-section highlight-section">
                     <h2 class="section-title">
-                        <span class="step-num">8</span> Control de Pases e Invitados
+                        <span class="step-num">8</span> Exportar Plantilla
                     </h2>
-                    <p class="section-intro">Genera enlaces personalizados para controlar cuántos pases tiene cada
-                        invitado.</p>
+                    <p class="section-intro">Descarga el diseño final como un archivo HTML independiente, para enviarlo o alojarlo donde desees.</p>
 
                     <div class="form-group">
-                        <label for="input-guest-name">Nombre del Invitado</label>
-                        <input type="text" id="input-guest-name" placeholder="Ej: Familia Gómez / Sra. Ana Pérez">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="input-guest-passes">Pases Asignados</label>
-                        <select id="input-guest-passes">
-                            <option value="1">1 pase (Individual)</option>
-                            <option value="2">2 pases (Pareja)</option>
-                            <option value="3" selected>3 pases</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group" style="display: flex; gap: 10px;">
-                        <button class="action-btn success-btn" id="btn-generate-link" style="flex: 1;">
-                            <span>🔗</span> Enlace Específico
-                        </button>
-                        <button class="action-btn outline-btn" id="btn-generate-general-link"
-                            style="flex: 1; border: 1px solid var(--accent-color); color: var(--accent-color); background: transparent; cursor: pointer;">
-                            <span>🌐</span> Enlace General
-                        </button>
-                    </div>
-
-                    <div class="generated-link-area" id="generatedLinkArea" style="display: none;">
-                        <div class="form-group">
-                            <label for="input-generated-link">Enlace de Invitación</label>
-                            <input type="text" id="input-generated-link" readonly>
-                        </div>
-                        <div class="link-action-buttons">
-                            <button class="link-action-btn copy" id="btn-copy-link">
-                                📋 Copiar Enlace
-                            </button>
-                            <button class="link-action-btn whatsapp" id="btn-share-whatsapp">
-                                💬 Enviar por WhatsApp
-                            </button>
-                        </div>
+                        <a href="/admin/export/{{ project.id }}" class="action-btn success-btn" style="display: block; text-align: center; text-decoration: none; margin-top: 15px;">
+                            <span>⬇️</span> Descargar Plantilla HTML
+                        </a>
                     </div>
                 </section>
 
@@ -635,6 +606,12 @@
     <audio id="bgAudio" loop preload="auto"></audio>
 
     <!-- Scripts de la Aplicación -->
+    <script>
+        const PROJECT_ID = {{ project.id }};
+        {% if project.config_json %}
+        window.INITIAL_CONFIG = {{ project.config_json | safe }};
+        {% endif %}
+    </script>
     <script src="/static/templates.js"></script>
     <script src="/static/app.js"></script>
 </body>

@@ -229,7 +229,10 @@ from fastapi import UploadFile, File
 
 # Sanitizar CLOUDINARY_URL antes de importar cloudinary para evitar ValueError en la inicialización
 if "CLOUDINARY_URL" in os.environ:
-    os.environ["CLOUDINARY_URL"] = os.environ["CLOUDINARY_URL"].strip().strip('"').strip("'")
+    val = os.environ["CLOUDINARY_URL"].strip().strip('"').strip("'")
+    if val.startswith("CLOUDINARY_URL="):
+        val = val.replace("CLOUDINARY_URL=", "", 1).strip().strip('"').strip("'")
+    os.environ["CLOUDINARY_URL"] = val
 
 import cloudinary
 import cloudinary.uploader

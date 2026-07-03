@@ -243,6 +243,8 @@ async def upload_image(
     cloudinary_url = os.getenv("CLOUDINARY_URL")
     
     if cloudinary_url:
+        cloudinary_url = cloudinary_url.strip().strip('"').strip("'")
+        os.environ["CLOUDINARY_URL"] = cloudinary_url
         try:
             # Configurar explícitamente Cloudinary con la URL proporcionada
             import cloudinary

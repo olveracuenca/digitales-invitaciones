@@ -226,6 +226,11 @@ async def save_config(
 import shutil
 import os
 from fastapi import UploadFile, File
+
+# Sanitizar CLOUDINARY_URL antes de importar cloudinary para evitar ValueError en la inicialización
+if "CLOUDINARY_URL" in os.environ:
+    os.environ["CLOUDINARY_URL"] = os.environ["CLOUDINARY_URL"].strip().strip('"').strip("'")
+
 import cloudinary
 import cloudinary.uploader
 import time

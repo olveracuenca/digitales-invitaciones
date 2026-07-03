@@ -702,19 +702,33 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         
         // 3. Subida de foto de portada
-        inputBgUpload.addEventListener('change', (event) => {
+        inputBgUpload.addEventListener('change', async (event) => {
             const file = event.target.files[0];
             if (file) {
-                if (uploadedPhotoUrl) {
-                    URL.revokeObjectURL(uploadedPhotoUrl);
+                const formData = new FormData();
+                formData.append('file', file);
+                
+                try {
+                    const response = await fetch('/admin/upload_image', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    const data = await response.json();
+                    
+                    if (uploadedPhotoUrl && uploadedPhotoUrl.startsWith('blob:')) {
+                        URL.revokeObjectURL(uploadedPhotoUrl);
+                    }
+                    uploadedPhotoUrl = data.url;
+                    
+                    previewFilename.innerText = file.name;
+                    uploadPreviewArea.style.display = 'flex';
+                    
+                    presetThumbImg.style.backgroundImage = `url('${uploadedPhotoUrl}')`;
+                    applyPreset('photo');
+                } catch (error) {
+                    console.error('Error subiendo imagen:', error);
+                    alert('Error subiendo la imagen de portada');
                 }
-                uploadedPhotoUrl = URL.createObjectURL(file);
-                
-                previewFilename.innerText = file.name;
-                uploadPreviewArea.style.display = 'flex';
-                
-                presetThumbImg.style.backgroundImage = `url('${uploadedPhotoUrl}')`;
-                applyPreset('photo');
             }
         });
         
@@ -754,7 +768,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         
         // Subida Múltiple de Fotos para el Carrusel de la Galería (NUEVO)
-        inputGalleryUpload.addEventListener('change', (event) => {
+        inputGalleryUpload.addEventListener('change', async (event) => {
             const files = event.target.files;
             if (files && files.length > 0) {
                 // Agregar hasta un máximo razonable de fotos en la galería (ej: 12)
@@ -766,8 +780,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 
                 for (let i = 0; i < uploadCount; i++) {
-                    const fileUrl = URL.createObjectURL(files[i]);
-                    activeGalleryImages.push(fileUrl);
+                    const formData = new FormData();
+                    formData.append('file', files[i]);
+                    
+                    try {
+                        const response = await fetch('/admin/upload_image', {
+                            method: 'POST',
+                            body: formData
+                        });
+                        const data = await response.json();
+                        activeGalleryImages.push(data.url);
+                    } catch (error) {
+                        console.error('Error subiendo imagen de galería:', error);
+                    }
                 }
                 
                 renderGallery();
@@ -811,6 +836,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             
+            // Guardar configuración automáticamente antes de generar el enlace
+            await saveConfigToServer(true);
+            
             try {
                 const response = await fetch('/admin/generate_link', {
                     method: 'POST',
@@ -837,7 +865,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const btnGenerateGeneralLink = document.getElementById('btn-generate-general-link');
         if (btnGenerateGeneralLink) {
-            btnGenerateGeneralLink.addEventListener('click', () => {
+            btnGenerateGeneralLink.addEventListener('click', async () => {
+                // Guardar configuración automáticamente antes de generar el enlace
+                await saveConfigToServer(true);
+                
                 // Genera el enlace general usando el ID de configuración guardado (por defecto 1 en esta demo)
                 const configId = 1;
                 const generalLink = `${window.location.origin}/invitacion/general/${configId}`;
@@ -929,7 +960,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         
         // 7. Guardar Configuración (Exportar)
-        btnExportConfig.addEventListener('click', () => {
+        async function saveConfigToServer(silent = false) {
             const finalConfig = {
                 id: currentTemplateId,
                 themeClass: `theme-${currentTemplateId}`,
@@ -975,8 +1006,24 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('inv_generator_config', JSON.stringify(finalConfig));
             localStorage.setItem('inv_generator_active_template', currentTemplateId);
             
-            alert('🎉 ¡Configuración, paleta de colores, estilo de portada y carrusel de fotos guardados localmente! Se cargarán la próxima vez.');
-        });
+            try {
+                await fetch('/admin/save_config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(finalConfig)
+                });
+                if (!silent) {
+                    alert('🎉 ¡Configuración guardada en el sistema! Ahora tus invitados verán los cambios (cuenta regresiva, colores, textos).');
+                }
+            } catch (err) {
+                console.error(err);
+                if (!silent) {
+                    alert('Guardado localmente, pero hubo un error al guardar en el servidor.');
+                }
+            }
+        }
+
+        btnExportConfig.addEventListener('click', () => saveConfigToServer(false));
         
         // Restaurar Configuración de fábrica
         btnResetConfig.addEventListener('click', () => {

@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Lirio Invitaciones</title>
+    <title>Login - Cuencaolv Invitaciones</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         body {
@@ -15,28 +16,33 @@
             height: 100vh;
             margin: 0;
         }
+
         .login-container {
             background: white;
             padding: 40px;
             border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 400px;
             text-align: center;
         }
+
         .login-container h1 {
             color: #d4af37;
             margin-bottom: 20px;
         }
+
         .form-group {
             margin-bottom: 20px;
             text-align: left;
         }
+
         .form-group label {
             display: block;
             margin-bottom: 8px;
             color: #333;
         }
+
         .form-group input {
             width: 100%;
             padding: 12px;
@@ -44,6 +50,7 @@
             border-radius: 6px;
             box-sizing: border-box;
         }
+
         .btn {
             background-color: #d4af37;
             color: white;
@@ -55,18 +62,21 @@
             cursor: pointer;
             font-weight: 600;
         }
+
         .btn:hover {
             background-color: #bfa033;
         }
+
         .error {
             color: red;
             margin-bottom: 20px;
         }
     </style>
 </head>
+
 <body>
     <div class="login-container">
-        <h1>🌸 Lirio Admin</h1>
+        <h1>🌸 Cuencaolv Admin</h1>
         {% if error %}
         <div class="error">{{ error }}</div>
         {% endif %}
@@ -83,4 +93,5 @@
         </form>
     </div>
 </body>
+
 </html>

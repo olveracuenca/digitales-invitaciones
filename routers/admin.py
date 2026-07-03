@@ -96,3 +96,52 @@ async def generate_link(
     # El link será /invitacion/{guest_id}
     link = f"{request.base_url}invitacion/{new_guest.id}"
     return JSONResponse(content={"link": link, "guest_id": new_guest.id})
+
+@router.post("/admin/save_config")
+async def save_config(
+    request: Request,
+    config_data: dict,
+    db: Session = Depends(get_db)
+):
+    user = await get_current_user_cookie(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="No autorizado")
+
+    invitation = db.query(models.InvitationConfig).filter(models.InvitationConfig.id == 1).first()
+    if not invitation:
+        invitation = models.InvitationConfig(
+            id=1,
+            name="Evento Default",
+            config_json=json.dumps(config_data)
+        )
+        db.add(invitation)
+    else:
+        invitation.config_json = json.dumps(config_data)
+    
+    db.commit()
+    return {"message": "Configuración guardada en la base de datos"}
+
+import shutil
+import os
+from fastapi import UploadFile, File
+
+@router.post("/admin/upload_image")
+async def upload_image(
+    request: Request,
+    file: UploadFile = File(...),
+    db: Session = Depends(get_db)
+):
+    user = await get_current_user_cookie(request, db)
+    if not user:
+        raise HTTPException(status_code=401, detail="No autorizado")
+    
+    upload_dir = "static/uploads"
+    os.makedirs(upload_dir, exist_ok=True)
+    
+    # Save the file securely
+    file_location = f"{upload_dir}/{file.filename}"
+    with open(file_location, "wb+") as file_object:
+        shutil.copyfileobj(file.file, file_object)
+        
+    # Return the URL path
+    return {"url": f"/static/uploads/{file.filename}"}

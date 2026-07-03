@@ -124,6 +124,9 @@ async def save_config(
 import shutil
 import os
 from fastapi import UploadFile, File
+import cloudinary
+import cloudinary.uploader
+import time
 
 @router.post("/admin/upload_image")
 async def upload_image(
@@ -135,13 +138,28 @@ async def upload_image(
     if not user:
         raise HTTPException(status_code=401, detail="No autorizado")
     
-    upload_dir = "static/uploads"
-    os.makedirs(upload_dir, exist_ok=True)
+    cloudinary_url = os.getenv("CLOUDINARY_URL=cloudinary://<264237132926752>:<9EEg2A_WspijDVuw8yXZPg1WP_s>@fkwffxqp")
     
-    # Save the file securely
-    file_location = f"{upload_dir}/{file.filename}"
-    with open(file_location, "wb+") as file_object:
-        shutil.copyfileobj(file.file, file_object)
+    if cloudinary_url:
+        try:
+            # Subir a Cloudinary sin necesidad de configurar api_key/api_secret porque 
+            # cloudinary usa la variable CLOUDINARY_URL automáticamente
+            result = cloudinary.uploader.upload(file.file, folder="invitaciones")
+            return {"url": result.get("secure_url")}
+        except Exception as e:
+            print("Error uploading to Cloudinary:", str(e))
+            raise HTTPException(status_code=500, detail="Error uploading to Cloudinary")
+            
+    else:
+        # Fallback a local
+        upload_dir = "static/uploads"
+        os.makedirs(upload_dir, exist_ok=True)
         
-    # Return the URL path
-    return {"url": f"/static/uploads/{file.filename}"}
+        # Save the file securely (using a timestamp to avoid overwrites)
+        filename = f"{int(time.time())}_{file.filename}"
+        file_location = f"{upload_dir}/{filename}"
+        with open(file_location, "wb+") as file_object:
+            shutil.copyfileobj(file.file, file_object)
+            
+        # Return the URL path
+        return {"url": f"/static/uploads/{filename}"}

@@ -10,7 +10,7 @@ load_dotenv()
 SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./invitations.db")
 
 # Si la URL es de Postgres (postgres://) arreglarla a (postgresql://) que es lo que SQLAlchemy requiere
-if SQLALCHEMY_DATABASE_URL.startswith("postgresql://postgres:[cuenca15130072]@db.zljebebtljzqctmtqoma.supabase.co:5432/postgres"):
+if SQLALCHEMY_DATABASE_URL.startswith("postgres://"):
     SQLALCHEMY_DATABASE_URL = SQLALCHEMY_DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
 connect_args = {}

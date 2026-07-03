@@ -138,7 +138,7 @@ async def upload_image(
     if not user:
         raise HTTPException(status_code=401, detail="No autorizado")
     
-    cloudinary_url = os.getenv("CLOUDINARY_URL=cloudinary://<264237132926752>:<9EEg2A_WspijDVuw8yXZPg1WP_s>@fkwffxqp")
+    cloudinary_url = os.getenv("CLOUDINARY_URL", "cloudinary://264237132926752:9EEg2A_WspijDVuw8yXZPg1WP_s@fkwffxqp")
     
     if cloudinary_url:
         try:

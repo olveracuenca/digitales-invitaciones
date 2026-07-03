@@ -13,7 +13,7 @@ SECRET_KEY = "super_secret_key_change_me_in_production"
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 1440 # 24 hours
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto", bcrypt__truncate_error=False)
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/token")
 router = APIRouter(prefix="/auth", tags=["auth"])
 

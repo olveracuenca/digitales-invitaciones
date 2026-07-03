@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lirio Invitaciones - Creador de Invitaciones Digitales</title>
+    
+    <!-- Fuentes Google Fonts para diferentes estilos de plantillas -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Fredoka:wght@300..700&family=Great+Vibes&family=Montserrat:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css?v=1.0.2">
+</head>
+<body>
+    <div class="app-container">
+        
+        <!-- PANEL DE CONTROL / EDITOR (IZQUIERDA) -->
+        <aside class="editor-panel" id="editorPanel">
+            <header class="editor-header">
+                <div class="logo-area">
+                    <span class="logo-icon">🌸</span>
+                    <h1>Lirio Invitaciones</h1>
+                </div>
+                <p>Diseño y personalización en tiempo real</p>
+            </header>
+
+            <div class="editor-sections">
+                
+                <!-- SECCIÓN 1: PLANTILLA -->
+                <section class="editor-section">
+                    <h2 class="section-title">
+                        <span class="step-num">1</span> Selecciona una Plantilla
+                    </h2>
+                    <div class="template-selector">
+                        <button class="template-btn active" data-template="quinceanera" id="btn-tmpl-quinceanera">
+                            <span class="btn-icon">👑</span>
+                            <div class="btn-info">
+                                <strong>Mis XV Años</strong>
+                                <small>Rosa, oro y glam</small>
+                            </div>
+                        </button>
+                        <button class="template-btn" data-template="wedding" id="btn-tmpl-wedding">
+                            <span class="btn-icon">🕊️</span>
+                            <div class="btn-info">
+                                <strong>Boda Real</strong>
+                                <small>Eucalipto y crema</small>
+                            </div>
+                        </button>
+                        <button class="template-btn" data-template="babyshower" id="btn-tmpl-babyshower">
+                            <span class="btn-icon">🧸</span>
+                            <div class="btn-info">
+                                <strong>Baby Shower</strong>
+                                <small>Pastel tierno y nubes</small>
+                            </div>
+                        </button>
+                    </div>
+                </section>
+
+                <!-- SECCIÓN 2: PERSONALIZACIÓN DE COLORES -->
+                <section class="editor-section">
+                    <h2 class="section-title">
+                        <span class="step-num">2</span> Paleta de Colores
+                    </h2>
+                    <div class="color-picker-grid">
+                        <div class="color-picker-item">
+                            <label for="input-color-primary">Primario</label>
+                            <input type="color" id="input-color-primary" value="#d4af37">
+                        </div>
+                        <div class="color-picker-item">
+                            <label for="input-color-text">Texto</label>
+                            <input type="color" id="input-color-text" value="#403234">
+                        </div>
+                        <div class="color-picker-item">
+                            <label for="input-color-bg1">Fondo 1</label>
+                            <input type="color" id="input-color-bg1" value="#fff0f3">
+                        </div>
+                        <div class="color-picker-item">
+                            <label for="input-color-bg2">Fondo 2</label>
+                            <input type="color" id="input-color-bg2" value="#ffcbd5">
+                        </div>
+                    </div>
+                    <small class="helper-text">Modifica los colores a tu gusto para adaptarlos al evento.</small>
+                </section>
+
+                <!-- SECCIÓN 3: IMAGEN DE PORTADA -->
+                <section class="editor-section">
+                    <h2 class="section-title">
+                        <span class="step-num">3</span> Imagen de Portada
+                    </h2>
+                    
+                    <!-- Subida de Foto Personalizada -->
+                    <div class="form-group">
+                        <label>Sube una foto personalizada</label>
+                        <input type="file" id="input-bg-upload" accept="image/*" style="display: none;">
+                        <label for="input-bg-upload" class="file-upload-btn-label">
+                            <span class="upload-icon">📷</span> Seleccionar Foto...
+                        </label>
+                        <div class="upload-preview-area" id="uploadPreviewArea" style="display: none;">
+                            <span class="preview-filename" id="previewFilename">foto.jpg</span>
+                            <button class="remove-upload-btn" id="btn-remove-upload" title="Quitar foto y usar preset">✕</button>
+                        </div>
+                        <small class="helper-text">Ideal para colocar la foto del festejado en la portada.</small>
+                    </div>
+
+                    <!-- Diseños Predeterminados (Presets) -->
+                    <div class="form-group">
+                        <label>Estilos de Fondo</label>
+                        <div class="preset-grid" id="presetGrid">
+                            <button class="preset-btn active" data-preset="photo" id="preset-btn-photo" title="Usar portada con foto">
+                                <span class="preset-thumb photo-thumb" id="preset-thumb-img"></span>
+                                <span class="preset-label">Con Foto</span>
+                            </button>
+                            <button class="preset-btn" data-preset="minimalist" id="preset-btn-minimalist" title="Fondo limpio con marco elegante">
+                                <span class="preset-thumb minimal-thumb"></span>
+                                <span class="preset-label">Limpio</span>
+                            </button>
+                            <button class="preset-btn" data-preset="decorative" id="preset-btn-decorative" title="Fondo artístico texturizado">
+                                <span class="preset-thumb decorative-thumb"></span>
+                                <span class="preset-label">Decorativo</span>
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECCIÓN 4: GALERÍA DE FOTOS (CARRUSEL) (NUEVO) -->
+                <section class="editor-section">
+                    <h2 class="section-title">
+                        <span class="step-num">4</span> Galería / Carrusel de Fotos
+                    </h2>
+                    
+                    <!-- Activar/Desactivar Galería -->
+                    <div class="form-group-checkbox">
+                        <label class="checkbox-option">
+                            <input type="checkbox" id="input-show-gallery" checked>
+                            <span class="checkbox-custom"></span>
+                            Mostrar Galería de Fotos
+                        </label>
+                    </div>
+                    
+                    <div id="gallery-controls-container">
+                        <!-- Subir Múltiples Fotos -->
+                        <div class="form-group">
+                            <label>Sube fotos para la Galería</label>
+                            <input type="file" id="input-gallery-upload" accept="image/*" multiple style="display: none;">
+                            <label for="input-gallery-upload" class="file-upload-btn-label">
+                                <span class="upload-icon">🖼️</span> Seleccionar Fotos...
+                            </label>
+                            <small class="helper-text">Puedes subir hasta 6 fotos a la vez.</small>
+                        </div>
+
+                        <!-- Miniaturas de la Galería -->
+                        <div class="form-group">
+                            <label>Imágenes cargadas en la Galería</label>
+                            <div class="gallery-editor-thumbs" id="editorGalleryThumbs">
+                                <!-- Las miniaturas se generarán dinámicamente -->
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECCIÓN 5: INFORMACIÓN GENERAL -->
+                <section class="editor-section">
+                    <h2 class="section-title">
+                        <span class="step-num">5</span> Datos del Evento
+                    </h2>
+                    <div class="form-group">
+                        <label for="input-title">Título de la Invitación</label>
+                        <input type="text" id="input-title" placeholder="Ej: Mis XV Años / Nuestra Boda">
+                    </div>
+                    <div class="form-group">
+                        <label for="input-names">Nombre(s) de los Festejados</label>
+                        <input type="text" id="input-names" placeholder="Ej: Ximena María / Sofía & Alejandro">
+                    </div>
+                    <div class="form-group">
+                        <label for="input-phrase">Frase o Mensaje de Bienvenida</label>
+                        <textarea id="input-phrase" rows="3" placeholder="Una frase hermosa de bienvenida..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="input-date">Fecha y Hora del Evento</label>
+                        <input type="datetime-local" id="input-date">
+                    </div>
+                    <div class="form-group">
+                        <label for="input-parents">Padres y Padrinos (Opcional)</label>
+                        <textarea id="input-parents" rows="3" placeholder="Padres: Nombre & Nombre&#10;Padrinos: Nombre & Nombre"></textarea>
+                    </div>
+                </section>
+
+                <!-- SECCIÓN 6: UBICACIÓN Y HORARIOS -->
+                <section class="editor-section">
+                    <h2 class="section-title">
+                        <span class="step-num">6</span> Ceremonia y Recepción
+                    </h2>
+                    
+                    <div class="accordion-sub">
+                        <h3>⛪ Ceremonia / Iglesia</h3>
+                        <div class="form-group-checkbox">
+                            <label class="checkbox-option">
+                                <input type="checkbox" id="input-show-ceremony" checked>
+                                <span class="checkbox-custom"></span>
+                                Mostrar Sección de Ceremonia
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label for="input-ceremony-name">Nombre del Momento</label>
+                            <input type="text" id="input-ceremony-name" placeholder="Ej: Ceremonia Religiosa">
+                        </div>
+                        <div class="form-group">
+                            <label for="input-ceremony-place">Lugar / Templo</label>
+                            <input type="text" id="input-ceremony-place" placeholder="Ej: Parroquia de Santa María">
+                        </div>
+                        <div class="form-group">
+                            <label for="input-ceremony-address">Dirección</label>
+                            <input type="text" id="input-ceremony-address" placeholder="Ej: Av. Reforma 123, Centro">
+                        </div>
+                        <div class="form-group">
+                            <label for="input-ceremony-time">Hora</label>
+                            <input type="text" id="input-ceremony-time" placeholder="Ej: 17:00 Hrs">
+                        </div>
+                        <div class="form-group">
+                            <label for="input-ceremony-map">Enlace de Google Maps / Waze</label>
+                            <input type="url" id="input-ceremony-map" placeholder="https://maps.google.com/...">
+                        </div>
+                    </div>
+
+                    <div class="accordion-sub">
+                        <h3>🥂 Recepción / Fiesta</h3>
+                        <div class="form-group">
+                            <label for="input-reception-name">Nombre del Momento</label>
+                            <input type="text" id="input-reception-name" placeholder="Ej: Banquete y Fiesta">
+                        </div>
+                        <div class="form-group">
+                            <label for="input-reception-place">Salón / Quinta</label>
+                            <input type="text" id="input-reception-place" placeholder="Ej: Hacienda de las Flores">
+                        </div>
+                        <div class="form-group">
+                            <label for="input-reception-address">Dirección</label>
+                            <input type="text" id="input-reception-address" placeholder="Ej: Camino Real 789, San Ángel">
+                        </div>
+                        <div class="form-group">
+                            <label for="input-reception-time">Hora</label>
+                            <input type="text" id="input-reception-time" placeholder="Ej: 19:00 Hrs">
+                        </div>
+                        <div class="form-group">
+                            <label for="input-reception-map">Enlace de Google Maps / Waze</label>
+                            <input type="url" id="input-reception-map" placeholder="https://maps.google.com/...">
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECCIÓN 7: DETALLES EXTRA -->
+                <section class="editor-section">
+                    <h2 class="section-title">
+                        <span class="step-num">7</span> Código de Vestimenta y Regalos
+                    </h2>
+                    <div class="form-group">
+                        <label for="input-dress-code">Código de Vestimenta</label>
+                        <input type="text" id="input-dress-code" placeholder="Ej: Formal (Traje oscuro / vestido largo)">
+                    </div>
+                    <div class="form-group">
+                        <label for="input-gift-table">Mesa de Regalos (Tiendas y Códigos)</label>
+                        <input type="text" id="input-gift-table" placeholder="Ej: Liverpool (Mesa 50493) | Amazon">
+                    </div>
+                    <div class="form-group">
+                        <label for="input-bank-account">Cuenta Bancaria para Regalo en Efectivo</label>
+                        <input type="text" id="input-bank-account" placeholder="Ej: CLABE: 0123 4567 89... (Banco)">
+                    </div>
+                </section>
+
+                <!-- SECCIÓN 8: CREADOR DE ENLACES DE INVITADOS -->
+                <section class="editor-section highlight-section">
+                    <h2 class="section-title">
+                        <span class="step-num">8</span> Control de Pases e Invitados
+                    </h2>
+                    <p class="section-intro">Genera enlaces personalizados para controlar cuántos pases tiene cada invitado.</p>
+                    
+                    <div class="form-group">
+                        <label for="input-guest-name">Nombre del Invitado</label>
+                        <input type="text" id="input-guest-name" placeholder="Ej: Familia Gómez / Sra. Ana Pérez">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="input-guest-passes">Pases Asignados</label>
+                        <select id="input-guest-passes">
+                            <option value="1">1 pase (Individual)</option>
+                            <option value="2">2 pases (Pareja)</option>
+                            <option value="3" selected>3 pases</option>
+                            <option value="4">4 pases</option>
+                            <option value="5">5 pases</option>
+                            <option value="6">6 pases</option>
+                            <option value="7">7 pases</option>
+                            <option value="8">8 pases</option>
+                            <option value="10">10 pases</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <button class="action-btn success-btn" id="btn-generate-link">
+                            <span>🔗</span> Generar Enlace Personalizado
+                        </button>
+                    </div>
+
+                    <div class="generated-link-area" id="generatedLinkArea" style="display: none;">
+                        <div class="form-group">
+                            <label for="input-generated-link">Enlace de Invitación</label>
+                            <input type="text" id="input-generated-link" readonly>
+                        </div>
+                        <div class="link-action-buttons">
+                            <button class="link-action-btn copy" id="btn-copy-link">
+                                📋 Copiar Enlace
+                            </button>
+                            <button class="link-action-btn whatsapp" id="btn-share-whatsapp">
+                                💬 Enviar por WhatsApp
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- SECCIÓN 9: CONFIRMACIÓN Y MÚSICA -->
+                <section class="editor-section">
+                    <h2 class="section-title">
+                        <span class="step-num">9</span> RSVP y Música
+                    </h2>
+                    <div class="form-group">
+                        <label for="input-whatsapp">WhatsApp para Confirmaciones (10 dígitos)</label>
+                        <input type="tel" id="input-whatsapp" placeholder="Ej: 3345389556">
+                        <small class="helper-text">Las confirmaciones llegarán a este chat de WhatsApp.</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="input-music-url">Enlace MP3 de Música de Fondo</label>
+                        <input type="url" id="input-music-url" placeholder="https://ejemplo.com/musica.mp3">
+                        <small class="helper-text">Deja el enlace por defecto o ingresa una URL de audio directa.</small>
+                    </div>
+                </section>
+
+            </div>
+
+            <footer class="editor-footer">
+                <button class="action-btn success-btn" id="btn-export-config">
+                    <span>💾</span> Guardar Configuración
+                </button>
+                <button class="action-btn outline-btn" id="btn-reset-config">
+                    <span>🔄</span> Restaurar Valores
+                </button>
+            </footer>
+        </aside>
+
+        
+        <!-- ÁREA DEL SIMULADOR DE MÓVIL (DERECHA) -->
+        <main class="preview-area">
+            <div class="preview-toolbar">
+                <div class="toolbar-title">
+                    <span>📱</span> Previsualización del Invitado
+                </div>
+                <div class="toolbar-actions">
+                    <button class="toolbar-btn active" id="btn-view-desktop" title="Vista Dividida (Editor + Móvil)">
+                        <span>💻 + 📱</span> Vista Simulador
+                    </button>
+                    <button class="toolbar-btn" id="btn-view-mobile-only" title="Pantalla Completa Móvil">
+                        <span>📱</span> Pantalla Completa
+                    </button>
+                </div>
+            </div>
+
+            <!-- SIMULADOR MÓVIL -->
+            <div class="phone-wrapper" id="phoneWrapper">
+                <div class="phone-frame">
+                    <!-- Bocina / Altavoz superior -->
+                    <div class="phone-speaker"></div>
+                    <!-- Isla dinámica / Cámara -->
+                    <div class="phone-camera"></div>
+                    <!-- Botón volumen físico simulado -->
+                    <div class="phone-btn phone-btn-vol-up"></div>
+                    <div class="phone-btn phone-btn-vol-down"></div>
+                    <div class="phone-btn phone-btn-power"></div>
+                    
+                    <!-- PANTALLA DEL TELÉFONO -->
+                    <div class="phone-screen" id="phoneScreen">
+                        
+                        <!-- REPRODUCTOR DE MÚSICA FLOTANTE (DENTRO DEL TELÉFONO) -->
+                        <div class="music-floating-btn" id="musicBtn" title="Activar/Desactivar Música">
+                            <div class="music-waves" id="musicWaves">
+                                <span></span><span></span><span></span><span></span>
+                            </div>
+                            <svg class="music-icon-svg" viewBox="0 0 24 24" width="24" height="24">
+                                <path fill="currentColor" d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+                            </svg>
+                        </div>
+                        
+                        <!-- CONTENIDO DE LA INVITACIÓN DIGITAL -->
+                        <div class="invitation-container theme-quinceanera" id="invitationContainer">
+                            
+                            <!-- SECCIÓN HERO (PORTADA) -->
+                            <header class="inv-hero" id="invHero" style="background-image: url('assets/quinceanera_bg.png');">
+                                <div class="inv-overlay"></div>
+                                <div class="hero-frame-overlay" id="heroFrameOverlay"></div>
+                                <div class="decorations-container" id="decorationsContainer">
+                                    <!-- Partículas generadas dinámicamente -->
+                                </div>
+                                <div class="inv-hero-content">
+                                    <span class="inv-badge" id="preview-badge">Mis XV Años</span>
+                                    <h2 class="inv-names" id="preview-names">Ximena María</h2>
+                                    <div class="inv-divider-gold"></div>
+                                    <p class="inv-hero-scroll">Desliza para ver la invitación<br><span class="arrow-down">↓</span></p>
+                                </div>
+                            </header>
+
+                            <!-- TARJETA BIENVENIDA PERSONALIZADA (OCULTA POR DEFECTO) -->
+                            <div class="guest-welcome-card" id="guestWelcomeCard" style="display: none;">
+                                <span class="guest-icon-badge">💌</span>
+                                <h3 class="guest-welcome-title">¡Te esperamos, <span id="welcome-guest-name">Invitado</span>!</h3>
+                                <p class="guest-welcome-text">Hemos reservado <strong id="welcome-guest-passes">0</strong> pases en tu honor.</p>
+                            </div>
+
+                            <!-- SECCIÓN DETALLE / FRASE -->
+                            <section class="inv-section text-center p-large">
+                                <div class="inv-card card-phrase">
+                                    <p class="inv-phrase" id="preview-phrase">"Hay momentos que son inolvidables, pero son aún más especiales cuando se comparten con las personas que más quieres."</p>
+                                </div>
+                            </section>
+
+                            <!-- SECCIÓN CUENTA REGRESIVA -->
+                            <section class="inv-section p-medium text-center">
+                                <h3 class="section-subtitle">¿Cuánto falta para el gran día?</h3>
+                                <div class="countdown-container" id="countdown">
+                                    <div class="countdown-item">
+                                        <span class="time-num" id="cd-days">00</span>
+                                        <span class="time-label">Días</span>
+                                    </div>
+                                    <div class="countdown-item">
+                                        <span class="time-num" id="cd-hours">00</span>
+                                        <span class="time-label">Horas</span>
+                                    </div>
+                                    <div class="countdown-item">
+                                        <span class="time-num" id="cd-minutes">00</span>
+                                        <span class="time-label">Mins</span>
+                                    </div>
+                                    <div class="countdown-item">
+                                        <span class="time-num" id="cd-seconds">00</span>
+                                        <span class="time-label">Segs</span>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <!-- SECCIÓN PADRES / PADRINOS -->
+                            <section class="inv-section p-medium text-center">
+                                <div class="inv-card">
+                                    <h3 class="card-section-title">Con la bendición de nuestros padres</h3>
+                                    <p class="inv-parents-text" id="preview-parents">Padres: María José & Juan Carlos<br>| Padrinos: Patricia & Ricardo</p>
+                                </div>
+                            </section>
+
+                            <!-- SECCIÓN DE UBICACIÓN (CEREMONIA Y RECEPCIÓN) -->
+                            <section class="inv-section p-medium">
+                                <h3 class="section-subtitle text-center">Ubicación del Evento</h3>
+                                
+                                <!-- Ceremonia -->
+                                <div class="inv-card location-card" id="invCeremonyCard">
+                                    <div class="location-icon">⛪</div>
+                                    <h4 id="preview-ceremony-name">Misa de Acción de Gracias</h4>
+                                    <h5 id="preview-ceremony-place">Parroquia de Santa María</h5>
+                                    <p class="address-text" id="preview-ceremony-address">Av. Reforma 123, Centro Histórico</p>
+                                    <div class="time-badge" id="preview-ceremony-time">17:00 Hrs</div>
+                                    <div class="card-actions">
+                                        <a href="#" target="_blank" class="card-btn" id="preview-ceremony-map">
+                                            <span>📍</span> Ver Mapa Google
+                                        </a>
+                                    </div>
+                                </div>
+
+                                <!-- Recepción -->
+                                <div class="inv-card location-card">
+                                    <div class="location-icon">🥂</div>
+                                    <h4 id="preview-reception-name">Recepción y Banquete</h4>
+                                    <h5 id="preview-reception-place">Hacienda de las Flores</h5>
+                                    <p class="address-text" id="preview-reception-address">Camino Real 789, San Ángel</p>
+                                    <div class="time-badge" id="preview-reception-time">19:00 Hrs</div>
+                                    <div class="card-actions">
+                                        <a href="#" target="_blank" class="card-btn" id="preview-reception-map">
+                                            <span>📍</span> Ver Mapa Google
+                                        </a>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <!-- SECCIÓN GALERÍA DE FOTOS (CARRUSEL) (NUEVO) -->
+                            <section class="inv-section p-medium" id="invGallerySection">
+                                <h3 class="section-subtitle text-center">Galería del Evento</h3>
+                                <div class="carousel-wrapper">
+                                    <div class="carousel-track" id="previewGalleryTrack">
+                                        <!-- Las imágenes se inyectarán dinámicamente -->
+                                    </div>
+                                    <button class="carousel-control prev" id="btn-carousel-prev" aria-label="Anterior">❮</button>
+                                    <button class="carousel-control next" id="btn-carousel-next" aria-label="Siguiente">❯</button>
+                                </div>
+                            </section>
+
+                            <!-- SECCIÓN MESA DE REGALOS / TRANSFERENCIAS -->
+                            <section class="inv-section p-medium text-center">
+                                <div class="inv-card card-gift">
+                                    <div class="gift-icon">🎁</div>
+                                    <h3 class="card-section-title">Mesa de Regalos</h3>
+                                    <p class="gift-intro-text">Tu presencia es nuestro mejor regalo. Pero si deseas tener un detalle con nosotros, te dejamos algunas opciones:</p>
+                                    
+                                    <div class="gift-details-box">
+                                        <h4 class="details-title">Mesa de Regalos Físicos</h4>
+                                        <p id="preview-gift-table">Liverpool (Mesa N° 5038291) | Amazon (Búsqueda: Ximena XV)</p>
+                                    </div>
+
+                                    <div class="gift-details-box">
+                                        <h4 class="details-title">Regalo en Efectivo / Transferencia</h4>
+                                        <p id="preview-bank-account">Bancomer: 0123 4567 8910 (Titular: María José)</p>
+                                        <button class="copy-btn" id="btn-copy-account" data-clipboard="">
+                                            <span>📋</span> Copiar Cuenta / CLABE
+                                        </button>
+                                        <div class="toast" id="copyToast">¡Copiado al portapapeles!</div>
+                                    </div>
+                                </div>
+                            </section>
+
+                            <!-- SECCIÓN CÓDIGO DE VESTIMENTA -->
+                            <section class="inv-section p-medium text-center">
+                                <div class="inv-card">
+                                    <div class="dress-icon">👔👗</div>
+                                    <h3 class="card-section-title">Código de Vestimenta</h3>
+                                    <p class="dress-code-text" id="preview-dress-code">Formal (Hombres de traje, mujeres de vestido largo)</p>
+                                    <span class="dress-tip">¡Gracias por lucir espectacular con nosotros!</span>
+                                </div>
+                            </section>
+
+                            <!-- SECCIÓN CONFIRMACIÓN (FORMULARIO RSVP) -->
+                            <section class="inv-section p-medium text-center">
+                                <div class="inv-card card-rsvp">
+                                    <div class="rsvp-icon">✉️</div>
+                                    <h3 class="card-section-title">Confirmar Asistencia</h3>
+                                    <p class="rsvp-intro">Por favor ayúdanos a organizar de la mejor manera confirmando tu asistencia antes del evento.</p>
+                                    
+                                    <form class="rsvp-form" id="rsvpForm" onsubmit="event.preventDefault();">
+                                        <div class="form-group text-left">
+                                            <label for="rsvp-name">Nombre Completo</label>
+                                            <input type="text" id="rsvp-name" placeholder="Tu nombre y apellido" required>
+                                        </div>
+                                        
+                                        <div class="form-group text-left">
+                                            <label>¿Asistirás al Evento?</label>
+                                            <div class="radio-group">
+                                                <label class="radio-option">
+                                                    <input type="radio" name="rsvp-status" value="Si, asistiré" checked>
+                                                    <span class="radio-custom"></span>
+                                                    ¡Sí, con gusto iré! 🎉
+                                                </label>
+                                                <label class="radio-option">
+                                                    <input type="radio" name="rsvp-status" value="No podré asistir">
+                                                    <span class="radio-custom"></span>
+                                                    No podré asistir 😢
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-group text-left" id="rsvp-companions-group">
+                                            <label for="rsvp-companions">¿Cuántos pases confirmarás?</label>
+                                            <select id="rsvp-companions">
+                                                <option value="1">1 pase (Individual)</option>
+                                                <option value="2">2 pases (Pareja)</option>
+                                                <option value="3">3 pases</option>
+                                                <option value="4">4 pases</option>
+                                                <option value="5">5 pases</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="form-group text-left">
+                                            <label for="rsvp-msg">Mensaje Especial (Opcional)</label>
+                                            <input type="text" id="rsvp-msg" placeholder="Ej: ¡Felicidades! / Alguna alergia alimenticia">
+                                        </div>
+
+                                        <button type="button" class="rsvp-submit-btn" id="btn-submit-rsvp">
+                                            <span>💬</span> Confirmar por WhatsApp
+                                        </button>
+                                    </form>
+                                </div>
+                            </section>
+
+                            <!-- FOOTER DE LA INVITACIÓN -->
+                            <footer class="inv-footer text-center">
+                                <p class="inv-footer-thank">¡Te Esperamos!</p>
+                                <div class="inv-footer-sig">🌸 Lirio Invitaciones</div>
+                            </footer>
+
+                        </div>
+                    </div>
+                    
+                    <!-- Botón Home Físico / Barra Inferior -->
+                    <div class="phone-home-bar"></div>
+                </div>
+            </div>
+        </main>
+        
+    </div>
+
+    <!-- Elemento Audio Oculto -->
+    <audio id="bgAudio" loop preload="auto"></audio>
+
+    <!-- Scripts de la Aplicación -->
+    <script src="templates.js?v=1.0.2"></script>
+    <script src="app.js?v=1.0.2"></script>
+</body>
+</html>

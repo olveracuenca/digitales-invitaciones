@@ -1,664 +1,358 @@
 <!DOCTYPE html>
 <html lang="es">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cuencaolv Invitaciones - Creador de Invitaciones Digitales</title>
-
-    <!-- Fuentes Google Fonts para diferentes estilos de plantillas -->
+    <title>Editor de Invitación - {{ project.name }}</title>
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Fredoka:wght@300..700&family=Great+Vibes&family=Montserrat:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Quicksand:wght@300..700&display=swap"
-        rel="stylesheet">
-
-    <link rel="stylesheet" href="/static/style.css?v=1.0.2">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;600&family=Montserrat:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+    <script>
+        const PROJECT_ID = {{ project.id }};
+        // Inyectamos la configuración guardada inicial
+        const INITIAL_CONFIG = {{ project.config_json | default('{}', true) | safe }};
+    </script>
 </head>
+<body class="editor-body">
 
-<body>
-    <div class="app-container">
+    <nav class="editor-nav">
+        <div class="nav-left">
+            <a href="/admin/projects" class="back-btn">← Volver</a>
+            <h2>Editando: {{ project.name }}</h2>
+        </div>
+        <div class="nav-right">
+            <button id="btn-save" class="btn-primary">Guardar Cambios</button>
+            <a href="/admin/export/{{ project.id }}" class="btn-secondary" target="_blank">Exportar HTML</a>
+        </div>
+    </nav>
 
-        <!-- PANEL DE CONTROL / EDITOR (IZQUIERDA) -->
-        <aside class="editor-panel" id="editorPanel">
-            <header class="editor-header" style="background: white; border-bottom: 1px solid #eee; padding: 20px 24px;">
-                <div class="logo-area" style="margin-bottom: 0;">
-                    <span class="logo-icon" style="font-size: 24px;">👶</span>
-                    <h1 style="font-family: 'Playfair Display', serif; color: #2c2523; font-size: 24px;">Creador de Invitación</h1>
+    <div class="editor-container">
+        
+        <!-- Panel Izquierdo: Formulario -->
+        <div class="editor-sidebar">
+            
+            <div class="section-card">
+                <h3>1. Información Principal</h3>
+                <div class="form-group">
+                    <label>Título de la Invitación</label>
+                    <input type="text" data-key="title" placeholder="Ej: Nuestra Boda">
                 </div>
-                <p style="color: #888; font-size: 13px; margin-top: 5px; font-weight: 400;">Personaliza los detalles en tiempo real</p>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
-                    <a href="/admin/projects" class="action-btn" style="background-color: transparent; border: 1px solid #ddd; color: #555; padding: 5px 15px; border-radius: 5px; text-decoration: none; font-size: 0.9rem; margin-right: 10px;">← Proyectos</a>
+                <div class="form-group">
+                    <label>Nombres</label>
+                    <input type="text" data-key="names" placeholder="Ej: Ana & Carlos">
                 </div>
-            </header>
-
-            <div class="editor-sections">
-
-                <!-- SECCIÓN 1: PLANTILLA Y PORTADA -->
-                <section class="editor-section">
-                    <h2 class="section-title">
-                        <span class="step-num">1</span> Plantilla y Portada
-                    </h2>
-                    
-                    <div class="form-group-checkbox">
-                        <label class="checkbox-option">
-                            <input type="checkbox" id="input-show-cover" checked>
-                            <span class="checkbox-custom"></span>
-                            Mostrar Portada (Hero)
-                        </label>
-                    </div>
-
-                    <div class="template-selector" style="margin-bottom: 15px;">
-                        <button class="template-btn active" data-template="quinceanera" id="btn-tmpl-quinceanera">
-                            <span class="btn-icon">👑</span>
-                            <div class="btn-info">
-                                <strong>Mis XV Años</strong>
-                                <small>Rosa, oro y glam</small>
-                            </div>
-                        </button>
-                        <button class="template-btn" data-template="wedding" id="btn-tmpl-wedding">
-                            <span class="btn-icon">🕊️</span>
-                            <div class="btn-info">
-                                <strong>Boda Real</strong>
-                                <small>Eucalipto y crema</small>
-                            </div>
-                        </button>
-                        <button class="template-btn" data-template="babyshower" id="btn-tmpl-babyshower">
-                            <span class="btn-icon">🧸</span>
-                            <div class="btn-info">
-                                <strong>Baby Shower</strong>
-                                <small>Pastel tierno y nubes</small>
-                            </div>
-                        </button>
-                    </div>
-
-                    <!-- Subida de Foto Personalizada -->
-                    <div class="form-group">
-                        <label>Sube una foto de portada</label>
-                        <input type="file" id="input-bg-upload" accept="image/*" style="display: none;">
-                        <label for="input-bg-upload" class="file-upload-btn-label">
-                            <span class="upload-icon">📷</span> Seleccionar Foto...
-                        </label>
-                        <div class="upload-preview-area" id="uploadPreviewArea" style="display: none;">
-                            <span class="preview-filename" id="previewFilename">foto.jpg</span>
-                            <button class="remove-upload-btn" id="btn-remove-upload"
-                                title="Quitar foto y usar preset">✕</button>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- SECCIÓN 2: ESTÉTICA Y COLORES -->
-                <section class="editor-section">
-                    <h2 class="section-title">
-                        <span class="step-num">2</span> Estética y Colores
-                    </h2>
-                    
-                    <div class="form-group">
-                        <label>Temas de Color</label>
-                        <div class="theme-selector">
-                            <button class="theme-btn active" data-theme="pink-dream"
-                                style="background: linear-gradient(135deg, #FBCDCB, #FFF5F5);"></button>
-                            <button class="theme-btn" data-theme="lavender-blossom"
-                                style="background: linear-gradient(135deg, #E8DFF5, #FFF5FF);"></button>
-                            <button class="theme-btn" data-theme="peach-cream"
-                                style="background: linear-gradient(135deg, #FAD2E1, #FFF9F5);"></button>
-                            <button class="theme-btn" data-theme="mint-sweet"
-                                style="background: linear-gradient(135deg, #D8F3DC, #F5FFFA);"></button>
-                            <button class="theme-btn" data-theme="gold-classic"
-                                style="background: linear-gradient(135deg, #d4af37, #111111);"></button>
-                            <button class="theme-btn" data-theme="blue-ocean"
-                                style="background: linear-gradient(135deg, #a2d2ff, #f8f9fa);"></button>
-                        </div>
-                    </div>
-
-                    <div class="form-group" style="margin-top: 15px;">
-                        <label>Colores Personalizados</label>
-                        <div class="color-picker-grid">
-                            <div class="color-picker-item circular-picker">
-                                <label for="input-color-primary">Primario</label>
-                                <input type="color" id="input-color-primary" value="#d4af37">
-                            </div>
-                            <div class="color-picker-item circular-picker">
-                                <label for="input-color-text">Texto</label>
-                                <input type="color" id="input-color-text" value="#403234">
-                            </div>
-                            <div class="color-picker-item circular-picker">
-                                <label for="input-color-bg1">Fondo 1</label>
-                                <input type="color" id="input-color-bg1" value="#fff0f3">
-                            </div>
-                            <div class="color-picker-item circular-picker">
-                                <label for="input-color-bg2">Fondo 2</label>
-                                <input type="color" id="input-color-bg2" value="#ffcbd5">
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- SECCIÓN 3: DATOS DEL EVENTO -->
-                <section class="editor-section">
-                    <h2 class="section-title">
-                        <span class="step-num">3</span> Datos del Evento
-                    </h2>
-                    
-                    <div class="form-group">
-                        <label for="input-internal-name">Nombre Interno del Proyecto</label>
-                        <input type="text" id="input-internal-name" value="{{ project.name }}">
-                    </div>
-                    <div class="form-group">
-                        <label for="input-title">Título de la Invitación</label>
-                        <input type="text" id="input-title" placeholder="Ej: Mis XV Años / Nuestra Boda">
-                    </div>
-                    <div class="form-group">
-                        <label for="input-names">Nombre(s) de los Festejados</label>
-                        <input type="text" id="input-names" placeholder="Ej: Ximena María / Sofía & Alejandro">
-                    </div>
-                    
-                    <div class="form-group-checkbox" style="margin-top: 15px;">
-                        <label class="checkbox-option">
-                            <input type="checkbox" id="input-show-phrase" checked>
-                            <span class="checkbox-custom"></span>
-                            Mostrar Frase / Mensaje
-                        </label>
-                    </div>
-                    <div class="form-group">
-                        <label for="input-phrase">Frase o Mensaje de Bienvenida</label>
-                        <textarea id="input-phrase" rows="3"
-                            placeholder="Una frase hermosa de bienvenida..."></textarea>
-                    </div>
-
-                    <div class="form-group-checkbox" style="margin-top: 15px;">
-                        <label class="checkbox-option">
-                            <input type="checkbox" id="input-show-countdown" checked>
-                            <span class="checkbox-custom"></span>
-                            Mostrar Cuenta Regresiva
-                        </label>
-                    </div>
-                    <div class="form-group">
-                        <label for="input-date">Fecha y Hora del Evento</label>
-                        <input type="datetime-local" id="input-date">
-                    </div>
-                    
-                    <div class="form-group-checkbox" style="margin-top: 15px;">
-                        <label class="checkbox-option">
-                            <input type="checkbox" id="input-show-parents" checked>
-                            <span class="checkbox-custom"></span>
-                            Mostrar Padres/Padrinos
-                        </label>
-                    </div>
-                    <div class="form-group">
-                        <label for="input-parents">Padres y Padrinos</label>
-                        <textarea id="input-parents" rows="3"
-                            placeholder="Padres: Nombre & Nombre&#10;Padrinos: Nombre & Nombre"></textarea>
-                    </div>
-                </section>
-
-                <!-- SECCIÓN 4: UBICACIÓN -->
-                <section class="editor-section">
-                    <h2 class="section-title">
-                        <span class="step-num">4</span> Ubicación
-                    </h2>
-
-                    <div class="accordion-sub">
-                        <h3>⛪ Ceremonia</h3>
-                        <div class="form-group-checkbox">
-                            <label class="checkbox-option">
-                                <input type="checkbox" id="input-show-ceremony" checked>
-                                <span class="checkbox-custom"></span>
-                                Mostrar Ceremonia
-                            </label>
-                        </div>
-                        <div class="form-group">
-                            <label for="input-ceremony-name">Nombre del Momento</label>
-                            <input type="text" id="input-ceremony-name" placeholder="Ej: Ceremonia Religiosa">
-                        </div>
-                        <div class="form-group">
-                            <label for="input-ceremony-place">Lugar</label>
-                            <input type="text" id="input-ceremony-place" placeholder="Ej: Parroquia...">
-                        </div>
-                        <div class="form-group">
-                            <label for="input-ceremony-address">Dirección</label>
-                            <input type="text" id="input-ceremony-address" placeholder="Dirección completa">
-                        </div>
-                        <div class="form-group">
-                            <label for="input-ceremony-time">Hora</label>
-                            <input type="text" id="input-ceremony-time" placeholder="Ej: 17:00 Hrs">
-                        </div>
-                        <div class="form-group">
-                            <label for="input-ceremony-map">Enlace de Google Maps</label>
-                            <input type="url" id="input-ceremony-map" placeholder="https://maps.google.com/...">
-                        </div>
-                    </div>
-
-                    <div class="accordion-sub">
-                        <h3>🥂 Recepción</h3>
-                        <div class="form-group-checkbox">
-                            <label class="checkbox-option">
-                                <input type="checkbox" id="input-show-reception" checked>
-                                <span class="checkbox-custom"></span>
-                                Mostrar Recepción
-                            </label>
-                        </div>
-                        <div class="form-group">
-                            <label for="input-reception-name">Nombre del Momento</label>
-                            <input type="text" id="input-reception-name" placeholder="Ej: Banquete y Fiesta">
-                        </div>
-                        <div class="form-group">
-                            <label for="input-reception-place">Salón / Quinta</label>
-                            <input type="text" id="input-reception-place" placeholder="Ej: Hacienda de las Flores">
-                        </div>
-                        <div class="form-group">
-                            <label for="input-reception-address">Dirección</label>
-                            <input type="text" id="input-reception-address"
-                                placeholder="Dirección completa">
-                        </div>
-                        <div class="form-group">
-                            <label for="input-reception-time">Hora</label>
-                            <input type="text" id="input-reception-time" placeholder="Ej: 19:00 Hrs">
-                        </div>
-                        <div class="form-group">
-                            <label for="input-reception-map">Enlace de Google Maps</label>
-                            <input type="url" id="input-reception-map" placeholder="https://maps.google.com/...">
-                        </div>
-                    </div>
-                </section>
-
-                <!-- SECCIÓN 5: DETALLES DE INVITACIÓN -->
-                <section class="editor-section">
-                    <h2 class="section-title">
-                        <span class="step-num">5</span> Detalles de Invitación
-                    </h2>
-                    
-                    <div class="form-group-checkbox">
-                        <label class="checkbox-option">
-                            <input type="checkbox" id="input-show-dress-code" checked>
-                            <span class="checkbox-custom"></span>
-                            Mostrar Código de Vestimenta
-                        </label>
-                    </div>
-                    <div class="form-group">
-                        <label for="input-dress-code">Código de Vestimenta</label>
-                        <input type="text" id="input-dress-code"
-                            placeholder="Ej: Formal (Traje oscuro / vestido largo)">
-                    </div>
-
-                    <div class="form-group-checkbox" style="margin-top: 15px;">
-                        <label class="checkbox-option">
-                            <input type="checkbox" id="input-show-gifts" checked>
-                            <span class="checkbox-custom"></span>
-                            Mostrar Mesa de Regalos / Cuentas
-                        </label>
-                    </div>
-                    <div class="form-group">
-                        <label for="input-gift-table">Mesa de Regalos (Instrucciones)</label>
-                        <input type="text" id="input-gift-table" placeholder="Ej: Liverpool (Mesa 50493) | Amazon">
-                    </div>
-                    <div class="form-group">
-                        <label for="input-bank-account">Cuenta Bancaria para Regalo en Efectivo</label>
-                        <input type="text" id="input-bank-account" placeholder="Ej: CLABE: 0123 4567 89... (Banco)">
-                    </div>
-                </section>
-
-                <!-- SECCIÓN 6: GALERÍA DE FOTOS -->
-                <section class="editor-section">
-                    <h2 class="section-title">
-                        <span class="step-num">6</span> Galería de Fotos
-                    </h2>
-
-                    <!-- Activar/Desactivar Galería -->
-                    <div class="form-group-checkbox">
-                        <label class="checkbox-option">
-                            <input type="checkbox" id="input-show-gallery" checked>
-                            <span class="checkbox-custom"></span>
-                            Mostrar Galería de Fotos
-                        </label>
-                    </div>
-
-                    <div id="gallery-controls-container">
-                        <div class="form-group">
-                            <label>Sube fotos para la Galería</label>
-                            <input type="file" id="input-gallery-upload" accept="image/*" multiple
-                                style="display: none;">
-                            <label for="input-gallery-upload" class="file-upload-btn-label">
-                                <span class="upload-icon">🖼️</span> Seleccionar Fotos...
-                            </label>
-                        </div>
-                        <div class="form-group">
-                            <div class="gallery-editor-thumbs" id="editorGalleryThumbs">
-                                <!-- Las miniaturas se generarán dinámicamente -->
-                            </div>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- SECCIÓN 7: RSVP -->
-                <section class="editor-section">
-                    <h2 class="section-title">
-                        <span class="step-num">7</span> Confirmación (RSVP)
-                    </h2>
-                    
-                    <div class="form-group-checkbox">
-                        <label class="checkbox-option">
-                            <input type="checkbox" id="input-show-rsvp" checked>
-                            <span class="checkbox-custom"></span>
-                            Mostrar Formulario de Confirmación
-                        </label>
-                    </div>
-                    <div class="form-group">
-                        <label for="input-whatsapp">WhatsApp para Confirmaciones</label>
-                        <input type="tel" id="input-whatsapp" placeholder="Número a 10 dígitos">
-                    </div>
-                    <div class="form-group">
-                        <label for="input-music-url">Enlace MP3 de Música de Fondo</label>
-                        <input type="url" id="input-music-url" placeholder="https://ejemplo.com/musica.mp3">
-                    </div>
-                </section>
-                
-                <!-- SECCIÓN 8: EXPORTAR PLANTILLA -->
-                <section class="editor-section highlight-section">
-                    <h2 class="section-title">
-                        <span class="step-num">8</span> Exportar Plantilla
-                    </h2>
-                    <p class="section-intro">Descarga el diseño final como un archivo HTML independiente, para enviarlo o alojarlo donde desees.</p>
-
-                    <div class="form-group">
-                        <a href="/admin/export/{{ project.id }}" class="action-btn success-btn" style="display: block; text-align: center; text-decoration: none; margin-top: 15px;">
-                            <span>⬇️</span> Descargar Plantilla HTML
-                        </a>
-                    </div>
-                </section>
-
+                <div class="form-group">
+                    <label>Mensaje / Frase</label>
+                    <textarea data-key="phrase" rows="3" placeholder="Ej: Nos casamos..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Fecha y Hora</label>
+                    <input type="datetime-local" data-key="date">
+                </div>
             </div>
 
-            <footer class="editor-footer" style="border-top: none;">
-                <button class="action-btn success-btn" id="btn-export-config" style="background-color: #a26c68; color: white;">
-                    <span>📥</span> Guardar Cambios
-                </button>
-                <button class="action-btn outline-btn" id="btn-reset-config">
-                    <span>🔄</span> Restaurar Valores
-                </button>
-            </footer>
-        </aside>
+            <div class="section-card">
+                <h3>2. Ceremonia</h3>
+                <label class="toggle-label">
+                    <input type="checkbox" data-key="showCeremony" checked> Mostrar Ceremonia
+                </label>
+                <div class="toggled-content" data-show-if="showCeremony">
+                    <div class="form-group">
+                        <label>Nombre del Lugar</label>
+                        <input type="text" data-key="ceremonyName" placeholder="Ej: Parroquia San José">
+                    </div>
+                    <div class="form-group">
+                        <label>Dirección</label>
+                        <input type="text" data-key="ceremonyAddress" placeholder="Ej: Calle Principal 123">
+                    </div>
+                    <div class="form-group">
+                        <label>Hora</label>
+                        <input type="text" data-key="ceremonyTime" placeholder="Ej: 16:00 hrs">
+                    </div>
+                    <div class="form-group">
+                        <label>URL de Google Maps</label>
+                        <input type="url" data-key="ceremonyMap" placeholder="https://maps.app.goo.gl/...">
+                    </div>
+                </div>
+            </div>
 
+            <div class="section-card">
+                <h3>3. Recepción</h3>
+                <label class="toggle-label">
+                    <input type="checkbox" data-key="showReception" checked> Mostrar Recepción
+                </label>
+                <div class="toggled-content" data-show-if="showReception">
+                    <div class="form-group">
+                        <label>Nombre del Lugar</label>
+                        <input type="text" data-key="receptionName" placeholder="Ej: Salón Las Rosas">
+                    </div>
+                    <div class="form-group">
+                        <label>Dirección</label>
+                        <input type="text" data-key="receptionAddress" placeholder="Ej: Av. Central 456">
+                    </div>
+                    <div class="form-group">
+                        <label>Hora</label>
+                        <input type="text" data-key="receptionTime" placeholder="Ej: 18:00 hrs">
+                    </div>
+                    <div class="form-group">
+                        <label>URL de Google Maps</label>
+                        <input type="url" data-key="receptionMap" placeholder="https://maps.app.goo.gl/...">
+                    </div>
+                </div>
+            </div>
 
-        <!-- ÁREA DEL SIMULADOR DE MÓVIL (DERECHA) -->
-        <main class="preview-area">
+            <div class="section-card">
+                <h3>4. Regalos</h3>
+                <label class="toggle-label">
+                    <input type="checkbox" data-key="showGifts" checked> Mostrar Sección de Regalos
+                </label>
+                <div class="toggled-content" data-show-if="showGifts">
+                    <p class="help-text">Puedes habilitar hasta 3 opciones.</p>
+                    
+                    <!-- Opción 1 -->
+                    <div class="sub-card">
+                        <label class="toggle-label">
+                            <input type="checkbox" data-key="showGift1" checked> Opción 1 (Mesa de Regalos)
+                        </label>
+                        <div class="toggled-content" data-show-if="showGift1">
+                            <div class="form-group">
+                                <label>Nombre de Tienda</label>
+                                <input type="text" data-key="gift1Name" placeholder="Ej: Liverpool">
+                            </div>
+                            <div class="form-group">
+                                <label>URL de la Mesa</label>
+                                <input type="url" data-key="gift1Url" placeholder="https://...">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Opción 2 -->
+                    <div class="sub-card">
+                        <label class="toggle-label">
+                            <input type="checkbox" data-key="showGift2"> Opción 2 (Mesa de Regalos)
+                        </label>
+                        <div class="toggled-content" data-show-if="showGift2">
+                            <div class="form-group">
+                                <label>Nombre de Tienda</label>
+                                <input type="text" data-key="gift2Name" placeholder="Ej: Amazon">
+                            </div>
+                            <div class="form-group">
+                                <label>URL de la Mesa</label>
+                                <input type="url" data-key="gift2Url" placeholder="https://...">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Opción 3 -->
+                    <div class="sub-card">
+                        <label class="toggle-label">
+                            <input type="checkbox" data-key="showGift3"> Opción 3 (Transferencia)
+                        </label>
+                        <div class="toggled-content" data-show-if="showGift3">
+                            <div class="form-group">
+                                <label>Banco y Titular</label>
+                                <input type="text" data-key="gift3Bank" placeholder="Ej: BBVA - Juan Pérez">
+                            </div>
+                            <div class="form-group">
+                                <label>CLABE o Número de Cuenta</label>
+                                <input type="text" data-key="gift3Clabe" placeholder="Ej: 012345678901234567">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-card">
+                <h3>5. Confirmación (RSVP)</h3>
+                <label class="toggle-label">
+                    <input type="checkbox" data-key="showRsvp" checked> Mostrar RSVP
+                </label>
+                <div class="toggled-content" data-show-if="showRsvp">
+                    <div class="form-group">
+                        <label>Número de WhatsApp</label>
+                        <input type="tel" data-key="whatsappRSVP" placeholder="Ej: 5512345678">
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Panel Derecho: Previsualización -->
+        <div class="editor-preview-panel">
             <div class="preview-toolbar">
-                <div class="toolbar-title">
-                    <span>📱</span> Previsualización del Invitado
-                </div>
-                <div class="toolbar-actions">
-                    <button class="toolbar-btn active" id="btn-view-desktop" title="Vista Dividida (Editor + Móvil)">
-                        <span>💻 + 📱</span> Vista Simulador
-                    </button>
-                    <button class="toolbar-btn" id="btn-view-mobile-only" title="Pantalla Completa Móvil">
-                        <span>📱</span> Pantalla Completa
-                    </button>
-                </div>
+                <span>Vista Previa en Vivo</span>
             </div>
-
-            <!-- SIMULADOR MÓVIL -->
-            <div class="phone-wrapper" id="phoneWrapper">
-                <div class="phone-frame">
-                    <!-- Bocina / Altavoz superior -->
-                    <div class="phone-speaker"></div>
-                    <!-- Isla dinámica / Cámara -->
-                    <div class="phone-camera"></div>
-                    <!-- Botón volumen físico simulado -->
-                    <div class="phone-btn phone-btn-vol-up"></div>
-                    <div class="phone-btn phone-btn-vol-down"></div>
-                    <div class="phone-btn phone-btn-power"></div>
-
-                    <!-- PANTALLA DEL TELÉFONO -->
-                    <div class="phone-screen" id="phoneScreen">
-
-                        <!-- REPRODUCTOR DE MÚSICA FLOTANTE (DENTRO DEL TELÉFONO) -->
-                        <div class="music-floating-btn" id="musicBtn" title="Activar/Desactivar Música">
-                            <div class="music-waves" id="musicWaves">
-                                <span></span><span></span><span></span><span></span>
-                            </div>
-                            <svg class="music-icon-svg" viewBox="0 0 24 24" width="24" height="24">
-                                <path fill="currentColor"
-                                    d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z" />
-                            </svg>
-                        </div>
-
-                        <!-- CONTENIDO DE LA INVITACIÓN DIGITAL -->
-                        <div class="invitation-container theme-quinceanera" id="invitationContainer">
-
-                            <!-- SECCIÓN HERO (PORTADA) -->
-                            <header class="inv-hero" id="invHero"
-                                style="background-image: url('assets/quinceanera_bg.png');">
-                                <div class="inv-overlay"></div>
-                                <div class="hero-frame-overlay" id="heroFrameOverlay"></div>
-                                <div class="decorations-container" id="decorationsContainer">
-                                    <!-- Partículas generadas dinámicamente -->
-                                </div>
-                                <div class="inv-hero-content">
-                                    <span class="inv-badge" id="preview-badge">Mis XV Años</span>
-                                    <h2 class="inv-names" id="preview-names">Ximena María</h2>
-                                    <div class="inv-divider-gold"></div>
-                                    <p class="inv-hero-scroll">Desliza para ver la invitación<br><span
-                                            class="arrow-down">↓</span></p>
-                                </div>
-                            </header>
-
-                            <!-- TARJETA BIENVENIDA PERSONALIZADA (OCULTA POR DEFECTO) -->
-                            <div class="guest-welcome-card" id="guestWelcomeCard" style="display: none;">
-                                <span class="guest-icon-badge">💌</span>
-                                <h3 class="guest-welcome-title">¡Te esperamos, <span
-                                        id="welcome-guest-name">Invitado</span>!</h3>
-                                <p class="guest-welcome-text">Hemos reservado <strong
-                                        id="welcome-guest-passes">0</strong> pases en tu honor.</p>
-                            </div>
-
-                            <!-- SECCIÓN DETALLE / FRASE -->
-                            <section class="inv-section text-center p-large">
-                                <div class="inv-card card-phrase">
-                                    <p class="inv-phrase" id="preview-phrase">"Hay momentos que son inolvidables, pero
-                                        son aún más especiales cuando se comparten con las personas que más quieres."
-                                    </p>
-                                </div>
-                            </section>
-
-                            <!-- SECCIÓN CUENTA REGRESIVA -->
-                            <section class="inv-section p-medium text-center">
-                                <h3 class="section-subtitle">¿Cuánto falta para el gran día?</h3>
-                                <div class="countdown-container" id="countdown">
-                                    <div class="countdown-item">
-                                        <span class="time-num" id="cd-days">00</span>
-                                        <span class="time-label">Días</span>
-                                    </div>
-                                    <div class="countdown-item">
-                                        <span class="time-num" id="cd-hours">00</span>
-                                        <span class="time-label">Horas</span>
-                                    </div>
-                                    <div class="countdown-item">
-                                        <span class="time-num" id="cd-minutes">00</span>
-                                        <span class="time-label">Mins</span>
-                                    </div>
-                                    <div class="countdown-item">
-                                        <span class="time-num" id="cd-seconds">00</span>
-                                        <span class="time-label">Segs</span>
-                                    </div>
-                                </div>
-                            </section>
-
-                            <!-- SECCIÓN PADRES / PADRINOS -->
-                            <section class="inv-section p-medium text-center">
-                                <div class="inv-card">
-                                    <h3 class="card-section-title">Con la bendición de nuestros padres</h3>
-                                    <p class="inv-parents-text" id="preview-parents">Padres: María José & Juan
-                                        Carlos<br>| Padrinos: Patricia & Ricardo</p>
-                                </div>
-                            </section>
-
-                            <!-- SECCIÓN DE UBICACIÓN (CEREMONIA Y RECEPCIÓN) -->
-                            <section class="inv-section p-medium">
-                                <h3 class="section-subtitle text-center">Ubicación del Evento</h3>
-
-                                <!-- Ceremonia -->
-                                <div class="inv-card location-card" id="invCeremonyCard">
-                                    <div class="location-icon">⛪</div>
-                                    <h4 id="preview-ceremony-name">Misa de Acción de Gracias</h4>
-                                    <h5 id="preview-ceremony-place">Parroquia de Santa María</h5>
-                                    <p class="address-text" id="preview-ceremony-address">Av. Reforma 123, Centro
-                                        Histórico</p>
-                                    <div class="time-badge" id="preview-ceremony-time">17:00 Hrs</div>
-                                    <div class="card-actions">
-                                        <a href="#" target="_blank" class="card-btn" id="preview-ceremony-map">
-                                            <span>📍</span> Ver Mapa Google
-                                        </a>
-                                    </div>
-                                </div>
-
-                                <!-- Recepción -->
-                                <div class="inv-card location-card">
-                                    <div class="location-icon">🥂</div>
-                                    <h4 id="preview-reception-name">Recepción y Banquete</h4>
-                                    <h5 id="preview-reception-place">Hacienda de las Flores</h5>
-                                    <p class="address-text" id="preview-reception-address">Camino Real 789, San Ángel
-                                    </p>
-                                    <div class="time-badge" id="preview-reception-time">19:00 Hrs</div>
-                                    <div class="card-actions">
-                                        <a href="#" target="_blank" class="card-btn" id="preview-reception-map">
-                                            <span>📍</span> Ver Mapa Google
-                                        </a>
-                                    </div>
-                                </div>
-                            </section>
-
-                            <!-- SECCIÓN GALERÍA DE FOTOS (CARRUSEL) (NUEVO) -->
-                            <section class="inv-section p-medium" id="invGallerySection">
-                                <h3 class="section-subtitle text-center">Galería del Evento</h3>
-                                <div class="carousel-wrapper">
-                                    <div class="carousel-track" id="previewGalleryTrack">
-                                        <!-- Las imágenes se inyectarán dinámicamente -->
-                                    </div>
-                                    <button class="carousel-control prev" id="btn-carousel-prev"
-                                        aria-label="Anterior">❮</button>
-                                    <button class="carousel-control next" id="btn-carousel-next"
-                                        aria-label="Siguiente">❯</button>
-                                </div>
-                            </section>
-
-                            <!-- SECCIÓN MESA DE REGALOS / TRANSFERENCIAS -->
-                            <section class="inv-section p-medium text-center">
-                                <div class="inv-card card-gift">
-                                    <div class="gift-icon">🎁</div>
-                                    <h3 class="card-section-title">Mesa de Regalos</h3>
-                                    <p class="gift-intro-text">Tu presencia es nuestro mejor regalo. Pero si deseas
-                                        tener un detalle con nosotros, te dejamos algunas opciones:</p>
-
-                                    <div class="gift-details-box">
-                                        <h4 class="details-title">Mesa de Regalos Físicos</h4>
-                                        <p id="preview-gift-table">Liverpool (Mesa N° 5038291) | Amazon (Búsqueda:
-                                            Ximena XV)</p>
-                                    </div>
-
-                                    <div class="gift-details-box">
-                                        <h4 class="details-title">Regalo en Efectivo / Transferencia</h4>
-                                        <p id="preview-bank-account">Bancomer: 0123 4567 8910 (Titular: María José)</p>
-                                        <button class="copy-btn" id="btn-copy-account" data-clipboard="">
-                                            <span>📋</span> Copiar Cuenta / CLABE
-                                        </button>
-                                        <div class="toast" id="copyToast">¡Copiado al portapapeles!</div>
-                                    </div>
-                                </div>
-                            </section>
-
-                            <!-- SECCIÓN CÓDIGO DE VESTIMENTA -->
-                            <section class="inv-section p-medium text-center">
-                                <div class="inv-card">
-                                    <div class="dress-icon">👔👗</div>
-                                    <h3 class="card-section-title">Código de Vestimenta</h3>
-                                    <p class="dress-code-text" id="preview-dress-code">Formal (Hombres de traje, mujeres
-                                        de vestido largo)</p>
-                                    <span class="dress-tip">¡Gracias por lucir espectacular con nosotros!</span>
-                                </div>
-                            </section>
-
-                            <!-- SECCIÓN CONFIRMACIÓN (FORMULARIO RSVP) -->
-                            <section class="inv-section p-medium text-center">
-                                <div class="inv-card card-rsvp">
-                                    <div class="rsvp-icon">✉️</div>
-                                    <h3 class="card-section-title">Confirmar Asistencia</h3>
-                                    <p class="rsvp-intro">Por favor ayúdanos a organizar de la mejor manera confirmando
-                                        tu asistencia antes del evento.</p>
-
-                                    <form class="rsvp-form" id="rsvpForm" onsubmit="event.preventDefault();">
-                                        <div class="form-group text-left">
-                                            <label for="rsvp-name">Nombre Completo</label>
-                                            <input type="text" id="rsvp-name" placeholder="Tu nombre y apellido"
-                                                required>
-                                        </div>
-
-                                        <div class="form-group text-left">
-                                            <label>¿Asistirás al Evento?</label>
-                                            <div class="radio-group">
-                                                <label class="radio-option">
-                                                    <input type="radio" name="rsvp-status" value="Si, asistiré" checked>
-                                                    <span class="radio-custom"></span>
-                                                    ¡Sí, con gusto iré! 🎉
-                                                </label>
-                                                <label class="radio-option">
-                                                    <input type="radio" name="rsvp-status" value="No podré asistir">
-                                                    <span class="radio-custom"></span>
-                                                    No podré asistir 😢
-                                                </label>
-                                            </div>
-                                        </div>
-
-                                        <div class="form-group text-left" id="rsvp-companions-group">
-                                            <label for="rsvp-companions">¿Cuántos pases confirmarás?</label>
-                                            <select id="rsvp-companions">
-                                                <option value="1">1 pase (Individual)</option>
-                                                <option value="2">2 pases (Pareja)</option>
-                                                <option value="3">3 pases</option>
-                                            </select>
-                                        </div>
-
-                                        <div class="form-group text-left">
-                                            <label for="rsvp-msg">Mensaje Especial (Opcional)</label>
-                                            <input type="text" id="rsvp-msg"
-                                                placeholder="Ej: ¡Felicidades! / Alguna alergia alimenticia">
-                                        </div>
-
-                                        <button type="button" class="rsvp-submit-btn" id="btn-submit-rsvp">
-                                            <span>💬</span> Confirmar por WhatsApp
-                                        </button>
-                                    </form>
-                                </div>
-                            </section>
-
-                            <!-- FOOTER DE LA INVITACIÓN -->
-                            <footer class="inv-footer text-center">
-                                <p class="inv-footer-thank">¡Te Esperamos!</p>
-                                <div class="inv-footer-sig">Cuencaolv Invitaciones</div>
-                            </footer>
-
-                        </div>
-                    </div>
-
-                    <!-- Botón Home Físico / Barra Inferior -->
-                    <div class="phone-home-bar"></div>
-                </div>
+            <div class="preview-wrapper">
+                <!-- Se inyectará dinámicamente mediante JS -->
+                <iframe id="preview-frame" srcdoc=""></iframe>
             </div>
-        </main>
+        </div>
 
     </div>
 
-    <!-- Elemento Audio Oculto -->
-    <audio id="bgAudio" loop preload="auto"></audio>
+    <!-- Script de la Vista Previa (Inyectado en el iframe) -->
+    <template id="invitation-template">
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Vista Previa</title>
+            <link rel="preconnect" href="https://fonts.googleapis.com">
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+            <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+            <style>
+                :root {
+                    --primary: #8C7355;
+                    --text: #333;
+                    --bg: #FAFAFA;
+                }
+                * { box-sizing: border-box; }
+                body {
+                    margin: 0; padding: 0;
+                    font-family: 'Montserrat', sans-serif;
+                    background-color: var(--bg);
+                    color: var(--text);
+                }
+                .invitation-card {
+                    max-width: 480px;
+                    margin: 0 auto;
+                    background: white;
+                    min-height: 100vh;
+                    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+                    text-align: center;
+                    padding-bottom: 50px;
+                }
+                .hero-section {
+                    padding: 80px 20px;
+                    background-color: #f0ebe1;
+                }
+                .title {
+                    font-family: 'Cormorant Garamond', serif;
+                    font-size: 1.5rem;
+                    text-transform: uppercase;
+                    letter-spacing: 3px;
+                    color: var(--primary);
+                    margin-bottom: 20px;
+                }
+                .names {
+                    font-family: 'Cormorant Garamond', serif;
+                    font-size: 4rem;
+                    line-height: 1.1;
+                    margin: 20px 0;
+                    color: var(--text);
+                }
+                .phrase {
+                    font-size: 1rem;
+                    line-height: 1.6;
+                    font-style: italic;
+                    margin: 20px auto;
+                    max-width: 80%;
+                }
+                .date {
+                    font-size: 1.2rem;
+                    font-weight: 600;
+                    margin: 30px 0;
+                    color: var(--primary);
+                }
+                
+                .section {
+                    padding: 40px 20px;
+                    border-bottom: 1px solid #eee;
+                }
+                .section h3 {
+                    font-family: 'Cormorant Garamond', serif;
+                    font-size: 2rem;
+                    color: var(--primary);
+                    margin-bottom: 20px;
+                }
+                .details {
+                    font-size: 1.1rem;
+                    margin-bottom: 10px;
+                }
+                .btn {
+                    display: inline-block;
+                    padding: 12px 25px;
+                    background-color: var(--primary);
+                    color: white;
+                    text-decoration: none;
+                    border-radius: 30px;
+                    font-weight: 600;
+                    margin-top: 15px;
+                    font-size: 0.9rem;
+                    border: none;
+                    cursor: pointer;
+                }
+                .gift-box {
+                    background: #f9f9f9;
+                    padding: 20px;
+                    border-radius: 10px;
+                    margin-bottom: 15px;
+                }
+                .gift-box h4 { margin: 0 0 10px 0; color: var(--primary); font-size: 1.2rem; }
+            </style>
+        </head>
+        <body>
+            <div class="invitation-card">
+                
+                <div class="hero-section">
+                    <div class="title" id="p-title">Nuestra Boda</div>
+                    <div class="names" id="p-names">Ana & Carlos</div>
+                    <div class="phrase" id="p-phrase">Nos casamos y queremos compartirlo contigo.</div>
+                    <div class="date" id="p-date">Sábado 15 de Octubre, 2026</div>
+                </div>
 
-    <!-- Scripts de la Aplicación -->
-    <script>
-        const PROJECT_ID = {{ project.id }};
-        {% if project.config_json %}
-        window.INITIAL_CONFIG = {{ project.config_json | safe }};
-        {% endif %}
-    </script>
-    <script src="/static/templates.js"></script>
+                <div class="section" id="s-ceremony">
+                    <h3>Ceremonia</h3>
+                    <div class="details" id="p-ceremonyName">Parroquia San José</div>
+                    <div class="details" style="font-size:0.9rem" id="p-ceremonyAddress">Calle Principal 123</div>
+                    <div class="details" id="p-ceremonyTime">16:00 hrs</div>
+                    <a href="#" class="btn" id="p-ceremonyMap">Ver Ubicación</a>
+                </div>
+
+                <div class="section" id="s-reception">
+                    <h3>Recepción</h3>
+                    <div class="details" id="p-receptionName">Salón Las Rosas</div>
+                    <div class="details" style="font-size:0.9rem" id="p-receptionAddress">Av. Central 456</div>
+                    <div class="details" id="p-receptionTime">18:00 hrs</div>
+                    <a href="#" class="btn" id="p-receptionMap">Ver Ubicación</a>
+                </div>
+
+                <div class="section" id="s-gifts">
+                    <h3>Mesa de Regalos</h3>
+                    <p>Si deseas tener un detalle con nosotros:</p>
+                    
+                    <div class="gift-box" id="sg-1">
+                        <h4 id="p-gift1Name">Liverpool</h4>
+                        <a href="#" class="btn" id="p-gift1Url">Ver Mesa de Regalos</a>
+                    </div>
+                    
+                    <div class="gift-box" id="sg-2">
+                        <h4 id="p-gift2Name">Amazon</h4>
+                        <a href="#" class="btn" id="p-gift2Url">Ver Mesa de Regalos</a>
+                    </div>
+
+                    <div class="gift-box" id="sg-3">
+                        <h4 id="p-gift3Bank">BBVA - Juan Pérez</h4>
+                        <div style="font-size:1.2rem; font-weight:bold; margin: 10px 0;" id="p-gift3Clabe">0123456789</div>
+                        <button class="btn" onclick="alert('CLABE Copiada')">Copiar CLABE</button>
+                    </div>
+                </div>
+
+                <div class="section" id="s-rsvp">
+                    <h3>Confirmar Asistencia</h3>
+                    <p>Por favor, confirma tu asistencia enviándonos un mensaje.</p>
+                    <a href="#" class="btn" id="p-whatsappRSVP">Confirmar por WhatsApp</a>
+                </div>
+
+            </div>
+        </body>
+        </html>
+    </template>
+
+    <!-- Nuestro Script V2 -->
     <script src="/static/app.js"></script>
 </body>
-
 </html>

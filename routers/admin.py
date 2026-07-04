@@ -78,14 +78,40 @@ async def projects_page(request: Request, db: Session = Depends(get_db)):
         return HTMLResponse(f"<h1>Error Interno del Servidor</h1><pre>{error_msg}</pre>", status_code=500)
 
 @router.post("/admin/projects/create")
-async def create_project(request: Request, db: Session = Depends(get_db)):
+async def create_project(
+    request: Request, 
+    projectName: str = Form(...),
+    eventType: str = Form(...),
+    templateId: str = Form(...),
+    db: Session = Depends(get_db)
+):
     user = await get_current_user_cookie(request, db)
     if not user:
         return RedirectResponse(url="/login")
         
+    # Asignar clase de tema basado en la plantilla
+    theme_mapping = {
+        'boda_minimal': 'theme-minimal',
+        'boda_classic': 'theme-classic',
+        'xv_gold': 'theme-quinceanera',
+        'xv_modern': 'theme-modern',
+        'baby_pastel': 'theme-pastel',
+        'baby_minimal': 'theme-minimal',
+        'gen_modern': 'theme-modern',
+        'gen_light': 'theme-light'
+    }
+    
+    theme_class = theme_mapping.get(templateId, 'theme-light')
+    
+    initial_config = {
+        "title": projectName,
+        "themeClass": theme_class,
+        "eventType": eventType
+    }
+        
     new_project = models.InvitationConfig(
-        name="Nueva Invitación",
-        config_json=json.dumps({"title": "Mi Evento", "themeClass": "theme-quinceanera"})
+        name=projectName,
+        config_json=json.dumps(initial_config)
     )
     db.add(new_project)
     db.commit()

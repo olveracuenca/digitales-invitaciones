@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ config.get('title', 'Invitación') }}</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Fredoka:wght@300..700&family=Great+Vibes&family=Montserrat:wght@300;400;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Quicksand:wght@300..700&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet"
+        href="{% if is_export %}{{ request.base_url }}static/style.css{% else %}/static/style.css{% endif %}">
+    <style>
+        /* Fullscreen the invitation instead of using the phone simulator */
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        .invitation-container {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+            min-height: 100vh;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="invitation-container {{ config.get('themeClass', 'theme-quinceanera') }}" id="invitationContainer">
+
+        <header class="inv-hero" id="invHero"
+            style="background-image: url('{% set bg = config.get('bgImage', '/static/assets/quinceanera_bg.png') %}{% if is_export and bg.startswith('/static/') %}{{ request.base_url }}{{ bg[1:] }}{% elif is_export and not bg.startswith('http') %}{{ request.base_url }}static/{{ bg }}{% else %}{{ bg }}{% endif %}');">
+            <div class="inv-overlay"></div>
+            <div class="hero-frame-overlay" id="heroFrameOverlay"></div>
+            <div class="decorations-container" id="decorationsContainer"></div>
+            <div class="inv-hero-content">
+                <span class="inv-badge">{{ config.get('title', 'Evento') }}</span>
+                <h2 class="inv-names">{{ config.get('names', 'Invitación') }}</h2>
+                <div class="inv-divider-gold"></div>
+                <p class="inv-hero-scroll">Desliza para ver la invitación<br><span class="arrow-down">↓</span></p>
+            </div>
+        </header>
+
+        <!-- TARJETA BIENVENIDA PERSONALIZADA -->
+        <div class="guest-welcome-card" style="display: block;">
+            <span class="guest-icon-badge">💌</span>
+            <h3 class="guest-welcome-title">¡Te esperamos, <span>{{ guest.name }}</span>!</h3>
+            <p class="guest-welcome-text">Hemos reservado <strong>{{ guest.passes_allowed }}</strong> pases en tu honor.
+            </p>
+        </div>
+
+        <!-- SECCIÓN DETALLE / FRASE -->
+        <section class="inv-section text-center p-large">
+            <div class="inv-card card-phrase">
+                <p class="inv-phrase">"{{ config.get('phrase', '') }}"</p>
+            </div>
+        </section>
+
+        <!-- SECCIÓN CUENTA REGRESIVA -->
+        <section class="inv-section p-medium text-center">
+            <h3 class="section-subtitle">¿Cuánto falta para el gran día?</h3>
+            <div class="countdown-container" id="countdown">
+                <div class="countdown-item">
+                    <span class="time-num" id="cd-days">00</span>
+                    <span class="time-label">Días</span>
+                </div>
+                <div class="countdown-item">
+                    <span class="time-num" id="cd-hours">00</span>
+                    <span class="time-label">Horas</span>
+                </div>
+                <div class="countdown-item">
+                    <span class="time-num" id="cd-minutes">00</span>
+                    <span class="time-label">Mins</span>
+                </div>
+                <div class="countdown-item">
+                    <span class="time-num" id="cd-seconds">00</span>
+                    <span class="time-label">Segs</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN PADRES / PADRINOS -->
+        <section class="inv-section p-medium text-center">
+            <div class="inv-card">
+                <h3 class="card-section-title">Con la bendición de nuestros padres</h3>
+                <p class="inv-parents-text">{{ config.get('parents', 'Padres: María José & Juan Carlos<br>| Padrinos:
+                    Patricia & Ricardo') | safe }}</p>
+            </div>
+        </section>
+
+        <!-- SECCIÓN DE UBICACIÓN -->
+        <section class="inv-section p-medium">
+            <h3 class="section-subtitle text-center">Ubicación del Evento</h3>
+
+            <div class="inv-card location-card">
+                <div class="location-icon">⛪</div>
+                <h4>{{ config.get('ceremonyName', '') }}</h4>
+                <h5>{{ config.get('ceremonyPlace', '') }}</h5>
+                <p class="address-text">{{ config.get('ceremonyAddress', '') }}</p>
+                <div class="time-badge">{{ config.get('ceremonyTime', '') }}</div>
+                <div class="card-actions">
+                    <a href="{{ config.get('ceremonyMap', '#') }}" target="_blank" class="card-btn">
+                        <span>📍</span> Ver Mapa Google
+                    </a>
+                </div>
+            </div>
+
+            <div class="inv-card location-card">
+                <div class="location-icon">🥂</div>
+                <h4>{{ config.get('receptionName', '') }}</h4>
+                <h5>{{ config.get('receptionPlace', '') }}</h5>
+                <p class="address-text">{{ config.get('receptionAddress', '') }}</p>
+                <div class="time-badge">{{ config.get('receptionTime', '') }}</div>
+                <div class="card-actions">
+                    <a href="{{ config.get('receptionMap', '#') }}" target="_blank" class="card-btn">
+                        <span>📍</span> Ver Mapa Google
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN GALERÍA DE FOTOS (CARRUSEL) -->
+        {% if config.get('showGallery', True) %}
+        <section class="inv-section p-medium" id="invGallerySection">
+            <h3 class="section-subtitle text-center">Galería del Evento</h3>
+            <div class="carousel-wrapper">
+                <div class="carousel-track" id="previewGalleryTrack">
+                    {% for img in config.get('galleryImages', ['/static/assets/placeholder.jpg',
+                    '/static/assets/placeholder2.jpg']) %}
+                    {% set img_url = img %}
+                    {% if is_export and img.startswith('/static/') %}
+                    {% set img_url = request.base_url ~ img[1:] %}
+                    {% elif is_export and not img.startswith('http') %}
+                    {% set img_url = request.base_url ~ "static/" ~ img %}
+                    {% endif %}
+                    <div class="carousel-slide" style="background-image: url('{{ img_url }}');"></div>
+                    {% endfor %}
+                </div>
+                <button class="carousel-control prev" onclick="moveCarousel(-1)" aria-label="Anterior">❮</button>
+                <button class="carousel-control next" onclick="moveCarousel(1)" aria-label="Siguiente">❯</button>
+            </div>
+        </section>
+        {% endif %}
+
+        <!-- SECCIÓN MESA DE REGALOS / TRANSFERENCIAS -->
+        <section class="inv-section p-medium text-center">
+            <div class="inv-card card-gift">
+                <div class="gift-icon">🎁</div>
+                <h3 class="card-section-title">Mesa de Regalos</h3>
+                <p class="gift-intro-text">Tu presencia es nuestro mejor regalo. Pero si deseas tener un detalle con
+                    nosotros, te dejamos algunas opciones:</p>
+
+                <div class="gift-details-box">
+                    <h4 class="details-title">Mesa de Regalos Físicos</h4>
+                    <p id="preview-gift-table">{{ config.get('giftTable', 'Liverpool (Mesa N° 5038291)') }}</p>
+                </div>
+
+                <div class="gift-details-box">
+                    <h4 class="details-title">Regalo en Efectivo / Transferencia</h4>
+                    <p id="preview-bank-account">{{ config.get('bankAccount', 'Bancomer: 0123 4567 8910 (Titular: María
+                        José)') }}</p>
+                    <button class="copy-btn" id="btn-copy-account-inv"
+                        onclick="navigator.clipboard.writeText('{{ config.get('bankAccount', '') }}'); alert('Copiado al portapapeles');">
+                        <span>📋</span> Copiar Cuenta / CLABE
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECCIÓN CÓDIGO DE VESTIMENTA -->
+        <section class="inv-section p-medium text-center">
+            <div class="inv-card">
+                <div class="dress-icon">👔👗</div>
+                <h3 class="card-section-title">Código de Vestimenta</h3>
+                <p class="dress-code-text" id="preview-dress-code">{{ config.get('dressCode', 'Formal (Hombres de traje,
+                    mujeres de vestido largo)') }}</p>
+                <span class="dress-tip">¡Gracias por lucir espectacular con nosotros!</span>
+            </div>
+        </section>
+
+        <!-- SECCIÓN CONFIRMACIÓN (FORMULARIO RSVP) -->
+        <section class="inv-section p-medium text-center">
+            <div class="inv-card card-rsvp">
+                <div class="rsvp-icon">✉️</div>
+                <h3 class="card-section-title">Confirmar Asistencia</h3>
+                <p class="rsvp-intro">Por favor ayúdanos a organizar de la mejor manera confirmando tu asistencia antes
+                    del evento.</p>
+
+                <form class="rsvp-form" id="rsvpForm" onsubmit="event.preventDefault();">
+                    <div class="form-group text-left">
+                        <label for="rsvp-name">Nombre Completo</label>
+                        <input type="text" id="rsvp-name" {% if guest %}value="{{ guest.name }}" readonly{% else
+                            %}placeholder="Tu nombre y apellido" required{% endif %}>
+                    </div>
+
+                    <div class="form-group text-left">
+                        <label>¿Asistirás al Evento?</label>
+                        <div class="radio-group">
+                            <label class="radio-option">
+                                <input type="radio" name="rsvp-status" value="Si, asistiré" checked>
+                                <span class="radio-custom"></span>
+                                ¡Sí, con gusto iré! 🎉
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="rsvp-status" value="No podré asistir">
+                                <span class="radio-custom"></span>
+                                No podré asistir 😢
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group text-left" id="rsvp-companions-group">
+                        <label for="rsvp-companions">¿Cuántos pases confirmarás?</label>
+                        <select id="rsvp-companions">
+                            {% if guest %}
+                            {% for i in range(1, guest.passes_allowed + 1) %}
+                            <option value="{{ i }}">{{ i }} pase{{ 's' if i > 1 else ' (Individual)' }}</option>
+                            {% endfor %}
+                            {% else %}
+                            <option value="1">1 pase (Individual)</option>
+                            <option value="2">2 pases (Pareja)</option>
+                            <option value="3">3 pases</option>
+                            <option value="4">4 pases</option>
+                            <option value="5">5 pases</option>
+                            {% endif %}
+                        </select>
+                    </div>
+
+                    <div class="form-group text-left">
+                        <label for="rsvp-msg">Mensaje Especial (Opcional)</label>
+                        <input type="text" id="rsvp-msg" placeholder="Ej: ¡Felicidades! / Alguna alergia alimenticia">
+                    </div>
+
+                    <button type="button" class="rsvp-submit-btn" id="btn-submit-rsvp">
+                        <span>💬</span> Confirmar por WhatsApp
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer class="inv-footer text-center">
+            <p class="inv-footer-thank">¡Te Esperamos!</p>
+            <div class="inv-footer-sig">Cuencaolv Invitaciones</div>
+        </footer>
+
+    </div>
+
+    <script>
+        // Configuración que puede ser leída por JS si se necesita para animaciones
+        window.invitationConfig = {{ config | tojson | safe }};
+
+        document.getElementById('btn-submit-rsvp').addEventListener('click', () => {
+            const guestName = document.getElementById('rsvp-name').value.trim();
+            const rsvpStatus = document.querySelector('input[name="rsvp-status"]:checked').value;
+            const confirmedPasses = document.getElementById('rsvp-companions').value;
+            const customMessage = document.getElementById('rsvp-msg').value.trim();
+
+            const whatsappNumber = window.invitationConfig.whatsapp || '';
+            const title = window.invitationConfig.title || 'Evento';
+            const names = window.invitationConfig.names || '';
+
+            {% if guest %}
+            const totalPasses = {{ guest.passes_allowed }
+        };
+        {% else %}
+        const totalPasses = "abierto";
+        {% endif %}
+
+        if (!guestName) {
+            alert('Por favor ingresa tu nombre para confirmar.');
+            return;
+        }
+
+        if (!whatsappNumber) {
+            alert('El organizador no ha configurado un número de WhatsApp para recibir confirmaciones.');
+            return;
+        }
+
+        let text = `*Confirmación de Asistencia*\n`;
+        text += `Evento: *${title} - ${names}*\n\n`;
+        text += `👤 *Invitado:* ${guestName}\n`;
+        text += `💌 *Asistencia:* ${rsvpStatus === 'Si, asistiré' ? '✅ ¡Sí asistiré!' : '❌ No podré asistir'}\n`;
+
+        if (rsvpStatus === 'Si, asistiré') {
+            text += `👥 *Pases Confirmados:* ${confirmedPasses} ${totalPasses !== 'abierto' ? 'de ' + totalPasses + ' asignados' : ''}\n`;
+        }
+
+        if (customMessage) {
+            text += `💬 *Mensaje:* "${customMessage}"\n`;
+        }
+
+        text += `\n_Confirmado desde la invitación digital_ 🌸`;
+
+        const cleanNumber = whatsappNumber.replace(/\D/g, '');
+        const whatsappUrl = `https://wa.me/${cleanNumber}?text=${encodeURIComponent(text)}`;
+        window.open(whatsappUrl, '_blank');
+    });
+
+        const statusRadios = document.querySelectorAll('input[name="rsvp-status"]');
+        statusRadios.forEach(radio => {
+            radio.addEventListener('change', () => {
+                document.getElementById('rsvp-companions-group').style.display = radio.value === 'No podré asistir' ? 'none' : 'block';
+            });
+        });
+
+        // Lógica del Carrusel
+        let carouselInterval;
+        function moveCarousel(direction) {
+            const track = document.getElementById('previewGalleryTrack');
+            if (!track) return;
+
+            const slideWidth = track.offsetWidth;
+            const maxScrollLeft = track.scrollWidth - track.clientWidth;
+
+            if (direction === 1) {
+                if (track.scrollLeft >= maxScrollLeft - 5) {
+                    track.scrollTo({ left: 0, behavior: 'smooth' });
+                } else {
+                    track.scrollBy({ left: slideWidth, behavior: 'smooth' });
+                }
+            } else {
+                if (track.scrollLeft <= 5) {
+                    track.scrollTo({ left: maxScrollLeft, behavior: 'smooth' });
+                } else {
+                    track.scrollBy({ left: -slideWidth, behavior: 'smooth' });
+                }
+            }
+
+            startCarouselAutoSlide();
+        }
+
+        function startCarouselAutoSlide() {
+            if (carouselInterval) clearInterval(carouselInterval);
+            carouselInterval = setInterval(() => { moveCarousel(1); }, 3000);
+        }
+        startCarouselAutoSlide();
+
+        // Lógica de la Cuenta Regresiva
+        function updateCountdown() {
+            const dateStr = window.invitationConfig.date || '';
+
+            if (!dateStr) return;
+
+            const targetDate = new Date(dateStr);
+            const now = new Date();
+            const diff = targetDate - now;
+
+            if (diff <= 0) {
+                document.getElementById('cd-days').textContent = '00';
+                document.getElementById('cd-hours').textContent = '00';
+                document.getElementById('cd-minutes').textContent = '00';
+                document.getElementById('cd-seconds').textContent = '00';
+                return;
+            }
+
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+            document.getElementById('cd-days').textContent = days.toString().padStart(2, '0');
+            document.getElementById('cd-hours').textContent = hours.toString().padStart(2, '0');
+            document.getElementById('cd-minutes').textContent = minutes.toString().padStart(2, '0');
+            document.getElementById('cd-seconds').textContent = seconds.toString().padStart(2, '0');
+        }
+
+        setInterval(updateCountdown, 1000);
+        updateCountdown();
+    </script>
+</body>
+
+</html>
